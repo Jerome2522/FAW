@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1044454536293",
+    "project_id": "fawicar",
+    "storage_bucket": "fawicar.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1044454536293:android:20f4710e673efefb16828c",
+        "android_client_info": {
+          "package_name": "com.icar.fawproto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUIqOE1R4DNpG152GbukLdMJiKjCDuN0Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

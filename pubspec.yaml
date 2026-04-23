@@ -1,0 +1,57 @@
+name: fawproto
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.10.7
+
+dependencies:
+  cloud_firestore: ^6.3.0
+  firebase_core: ^4.7.0
+  firebase_storage: ^13.3.0
+  flutter:
+    sdk: flutter
+  flutter_image_compress: ^2.4.0
+  flutter_localizations:
+    sdk: flutter
+  google_fonts: ^6.2.1
+  http: ^1.6.0
+  image_picker: ^1.2.1
+  intl: ^0.20.2
+  path: ^1.9.1
+  permission_handler: ^11.3.1
+  url_launcher: ^6.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.0
+
+flutter_native_splash:
+  color: "#F2F5F2"
+  image: lib/images/app_icon.png
+  color_dark: "#1B4332"
+  image_dark: lib/images/app_icon.png
+  android: true
+  ios: true
+  fullscreen: true
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "lib/images/app_icon.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#2D6A4F"
+  adaptive_icon_foreground: "lib/images/app_icon.png"
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - lib/images/
+    - assests/data/
