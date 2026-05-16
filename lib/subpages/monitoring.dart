@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,8 +9,7 @@ class MonitoringScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Monitoring',
+        title: Text(AppLocalizations.of(context)!.monitoring,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -22,23 +22,23 @@ class MonitoringScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSection(
-              title: "Field Scouting",
+              title: AppLocalizations.of(context)!.fieldScouting,
               color: Colors.blue.shade700,
               icon: Icons.search_rounded,
               items: [
-                "Start scouting as soon as maize seedlings emerge and observe for the presence of damage symptoms.",
-                "Observe for the presence of egg mass or white patches on leaves. At later stages observe for damage on leaves (elongated holes, torn appearance with frass).",
+                AppLocalizations.of(context)!.monItem6,
+                AppLocalizations.of(context)!.monItem5,
               ],
             ),
             const SizedBox(height: 20),
             _buildSection(
-              title: "Action Thresholds",
+              title: AppLocalizations.of(context)!.actionThresholds,
               color: Colors.orange.shade800,
               icon: Icons.warning_amber_rounded,
               items: [
-                "Early to mid whorl stage (15-30 days after sowing) - 5 to 10% damaged plants.",
-                "Mid stage (30-50 days after sowing) - 10-20% damaged plants.",
-                "Later stage (50-70 days after sowing) – more than 20% damaged plants.",
+                AppLocalizations.of(context)!.monItem1,
+                AppLocalizations.of(context)!.monItem2,
+                AppLocalizations.of(context)!.monItem4,
               ],
             ),
           ],

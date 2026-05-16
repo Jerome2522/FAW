@@ -31,19 +31,21 @@ class ContactScreen extends StatelessWidget {
       );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 100, 24, 100), // Top padding for header, bottom for nav
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            AppLocalizations.of(context)!.contactUs,
-            style: GoogleFonts.poppins(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFF1B4332),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 60, 24, 100), // Match Labs padding symmetrically
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.contactUs,
+              style: GoogleFonts.poppins(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1B4332),
+              ),
             ),
-          ),
           const SizedBox(height: 24),
           
           buildContactGlassBox(
@@ -182,6 +184,6 @@ class ContactScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }

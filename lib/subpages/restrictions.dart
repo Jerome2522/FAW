@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,8 +9,7 @@ class RestrictionsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Restrictions',
+        title: Text(AppLocalizations.of(context)!.restrictions,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -22,14 +22,14 @@ class RestrictionsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSection(
-              title: "Restricted Entry Interval (REI)",
+              title: AppLocalizations.of(context)!.reiTitle,
               color: Colors.red.shade900,
               icon: Icons.block,
               items: [
-                "Bt insecticide – One day",
-                "Spinetoram – Four hours",
-                "Chlorantraniliprole – 12 hours.",
-                "Thiamethaxam + lambda cyhalothrin – 24 hours.",
+                AppLocalizations.of(context)!.reiItem4,
+                AppLocalizations.of(context)!.reiItem1,
+                AppLocalizations.of(context)!.reiItem2,
+                AppLocalizations.of(context)!.reiItem3,
               ],
             ),
           ],

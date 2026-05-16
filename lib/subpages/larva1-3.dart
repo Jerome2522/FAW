@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class Larva1To3Screen extends StatelessWidget {
@@ -8,8 +9,7 @@ class Larva1To3Screen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FBF8),
       appBar: AppBar(
-        title: const Text(
-          "Larval growth stage: 1-3 instars",
+        title: Text(AppLocalizations.of(context)!.larvalStage1To3,
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -43,15 +43,15 @@ class Larva1To3Screen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildBulletPoint(
-                      "The adult female moth lays 100-200 eggs on the leaves."),
+                      AppLocalizations.of(context)!.lifecycleItem1),
                   _buildBulletPoint(
-                      "The eggs are covered in cream coloured protective scales. In 3-4 days neonates emerge from eggs and complete their life cycle in 36-42 days."),
+                      AppLocalizations.of(context)!.lifecycleItem2),
                   _buildBulletPoint(
-                      "After hatching, the young caterpillars feed superficially on the leaves by scrapping and it results in appearance of semi-transparent white patches on the leaves."),
+                      AppLocalizations.of(context)!.larva1_3Item2),
                   _buildBulletPoint(
-                      "Young caterpillars move to the new plants by spinning silken thread."),
+                      AppLocalizations.of(context)!.larva1_3Item3),
                   _buildBulletPoint(
-                      "Caterpillars prefer to feed in leaf whorls of young plants and feed more actively during night time."),
+                      AppLocalizations.of(context)!.larva1_3Item1),
                 ],
               ),
             ),

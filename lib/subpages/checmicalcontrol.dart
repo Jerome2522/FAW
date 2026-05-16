@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,8 +9,7 @@ class ChemicalControlScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Chemical Control',
+        title: Text(AppLocalizations.of(context)!.chemicalControl,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -22,13 +22,13 @@ class ChemicalControlScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSection(
-              title: "Chemical Control Measures",
+              title: AppLocalizations.of(context)!.chemicalControlMeasures,
               color: Colors.red.shade700,
               icon: Icons.science_outlined,
               items: [
-                "Collection and destruction of egg masses and neonate larvae whenever seen in the field.",
-                "Application of 5% NSKE / neem formulation - Azadirachtin 10000 ppm @ 2 ml per liter of water to kill eggs and neonate larvae.",
-                "Spraying of Spinetoram 11.7 SC @ 0.5ml or Chlorantraniliprole 18.5 SC @ 0.4ml. Thiamethoxam 12.6% + lambda cyhalothrin 9.5% ZC.",
+                AppLocalizations.of(context)!.ccItem3,
+                AppLocalizations.of(context)!.ccItem2,
+                AppLocalizations.of(context)!.ccItem1,
               ],
             ),
             const SizedBox(height: 20),
@@ -44,8 +44,7 @@ class ChemicalControlScreen extends StatelessWidget {
                   Icon(Icons.lightbulb_outline, color: Colors.orange.shade800),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      "Note: Spray should be directed into the leaf whorls.",
+                    child: Text(AppLocalizations.of(context)!.sprayNote,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: Colors.orange.shade900,

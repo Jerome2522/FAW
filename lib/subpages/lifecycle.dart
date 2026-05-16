@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class LifeCycleScreen extends StatelessWidget {
@@ -8,8 +9,7 @@ class LifeCycleScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FBF8),
       appBar: AppBar(
-        title: const Text(
-          "Life Cycle",
+        title: Text(AppLocalizations.of(context)!.lifeCycle,
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -52,8 +52,7 @@ class LifeCycleScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          "The Fall armyworm life cycle includes egg, 6 larval stages (instars), pupa and adult.",
+                        child: Text(AppLocalizations.of(context)!.lifecycleItem3,
                           style: TextStyle(
                             fontSize: 16,
                             height: 1.5,

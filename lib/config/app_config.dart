@@ -1,13 +1,18 @@
 import 'package:flutter/foundation.dart';
 
 class AppConfig {
-  static const String apiKey = '9dea141ff7713232e4841c41c0786e75098d357ac419eedb6373d8c09e6d6e1a';
+  static const String apiKey =
+      String.fromEnvironment('ML_API_KEY', defaultValue: 'REPLACE_ME');
 
+  /// Returns the appropriate base URL based on the environment.
   static String getBaseUrl() {
     if (kReleaseMode) {
-      return 'https://faw-backend.onrender.com';
+      return const String.fromEnvironment('BASE_URL',
+          defaultValue: 'https://faw-backend.onrender.com');
     }
-    return 'http://192.168.1.4:8000';
+
+    // Default to localhost for USB ADB Reverse connectivity
+    return 'http://127.0.0.1:8000';
   }
 
   static const String predictEndpoint = '/predict';

@@ -511,6 +511,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Larval growth stage: 4-6 instars'**
   String get larvaStage4_6;
+
+  /// No description provided for @fieldScouting.
+  ///
+  /// In en, this message translates to:
+  /// **'Field Scouting'**
+  String get fieldScouting;
+
+  /// No description provided for @bcItem1.
+  ///
+  /// In en, this message translates to:
+  /// **'At early crop stage (15-30 days after sowing): Release egg parasitoid. Trichogramma pretiosum @ 3 cards (50000 eggs)/acre - two times at 15 days interval. (Egg cards are available at NBAIR, Hebbal and RCIPMC, Kadugodi, Bangalore and State biocontrol labs).'**
+  String get bcItem1;
+
+  /// No description provided for @monItem2.
+  ///
+  /// In en, this message translates to:
+  /// **'Mid stage (30-50 days after sowing) - 10-20% damaged plants.'**
+  String get monItem2;
+
+  /// No description provided for @reiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restricted Entry Interval (REI)'**
+  String get reiTitle;
+
+  /// No description provided for @ccItem1.
+  ///
+  /// In en, this message translates to:
+  /// **'Spraying of Spinetoram 11.7 SC @ 0.5ml or Chlorantraniliprole 18.5 SC @ 0.4ml. Thiamethoxam 12.6% + lambda cyhalothrin 9.5% ZC.'**
+  String get ccItem1;
+
+  /// No description provided for @larva1_3Item2.
+  ///
+  /// In en, this message translates to:
+  /// **'After hatching, the young caterpillars feed superficially on the leaves by scrapping and it results in appearance of semi-transparent white patches on the leaves.'**
+  String get larva1_3Item2;
+
+  /// No description provided for @phItem2.
+  ///
+  /// In en, this message translates to:
+  /// **'Install pheromone traps @ 15/acre for mass trapping of the male moths.'**
+  String get phItem2;
+
+  /// No description provided for @larva1_3Item3.
+  ///
+  /// In en, this message translates to:
+  /// **'Young caterpillars move to the new plants by spinning silken thread.'**
+  String get larva1_3Item3;
+
+  /// No description provided for @larva4_6Item3.
+  ///
+  /// In en, this message translates to:
+  /// **'Feeding on young plants can kill the growing point, resulting in no new leaves or cobs development.'**
+  String get larva4_6Item3;
+
+  /// No description provided for @pmItem2.
+  ///
+  /// In en, this message translates to:
+  /// **'Wherever possible, sow early at first rain and follow synchronous planting in entire maize area to reduce population build up and multiple generations of FAW.'**
+  String get pmItem2;
+
+  /// No description provided for @larva1_3Item1.
+  ///
+  /// In en, this message translates to:
+  /// **'Caterpillars prefer to feed in leaf whorls of young plants and feed more actively during night time.'**
+  String get larva1_3Item1;
+
+  /// No description provided for @lifecycleItem1.
+  ///
+  /// In en, this message translates to:
+  /// **'The adult female moth lays 100-200 eggs on the leaves.'**
+  String get lifecycleItem1;
+
+  /// No description provided for @monItem1.
+  ///
+  /// In en, this message translates to:
+  /// **'Early to mid whorl stage (15-30 days after sowing) - 5 to 10% damaged plants.'**
+  String get monItem1;
+
+  /// No description provided for @monItem3.
+  ///
+  /// In en, this message translates to:
+  /// **'Install pheromone traps @ 4/acre soon after sowing and monitor moth catches.'**
+  String get monItem3;
+
+  /// No description provided for @biologicalSolutions.
+  ///
+  /// In en, this message translates to:
+  /// **'Biological Solutions'**
+  String get biologicalSolutions;
+
+  /// No description provided for @pmItem3.
+  ///
+  /// In en, this message translates to:
+  /// **'Intercrop/Alley/Mixed crop of maize with suitable pulse crops of particular region (pigeon pea/black gram/green gram).'**
+  String get pmItem3;
+
+  /// No description provided for @actionThresholds.
+  ///
+  /// In en, this message translates to:
+  /// **'Action Thresholds'**
+  String get actionThresholds;
+
+  /// No description provided for @ccItem3.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection and destruction of egg masses and neonate larvae whenever seen in the field.'**
+  String get ccItem3;
+
+  /// No description provided for @ccItem2.
+  ///
+  /// In en, this message translates to:
+  /// **'Application of 5% NSKE / neem formulation - Azadirachtin 10000 ppm @ 2 ml per liter of water to kill eggs and neonate larvae.'**
+  String get ccItem2;
+
+  /// No description provided for @phItem3.
+  ///
+  /// In en, this message translates to:
+  /// **'Community action for mass trapping will give successful control.'**
+  String get phItem3;
+
+  /// No description provided for @keyPreventiveStrategies.
+  ///
+  /// In en, this message translates to:
+  /// **'Key Preventive Strategies'**
+  String get keyPreventiveStrategies;
+
+  /// No description provided for @larva4_6Item4.
+  ///
+  /// In en, this message translates to:
+  /// **'Large quantities of frass (caterpillar excreta) is seen in the whorl. When this dries, it resembles saw dust.'**
+  String get larva4_6Item4;
+
+  /// No description provided for @phItem4.
+  ///
+  /// In en, this message translates to:
+  /// **'The antennal response of adult S.frugiperda males to (Z)-9-Tetradecenylacetate confirmed the physiological response of the antennal neurons to pheromone.'**
+  String get phItem4;
+
+  /// No description provided for @lifecycleItem2.
+  ///
+  /// In en, this message translates to:
+  /// **'The eggs are covered in cream coloured protective scales. In 3-4 days neonates emerge from eggs and complete their life cycle in 36-42 days.'**
+  String get lifecycleItem2;
+
+  /// No description provided for @larva4_6Item2.
+  ///
+  /// In en, this message translates to:
+  /// **'Often there are only 1 or 2 caterpillars in each whorl as they become cannibalistic.'**
+  String get larva4_6Item2;
+
+  /// No description provided for @chemicalControlMeasures.
+  ///
+  /// In en, this message translates to:
+  /// **'Chemical Control Measures'**
+  String get chemicalControlMeasures;
+
+  /// No description provided for @larva4_6Item1.
+  ///
+  /// In en, this message translates to:
+  /// **'By stage 4-6, it reaches plant whorl and causes maximum damage to the plant and produces ragged holes in the leaves.'**
+  String get larva4_6Item1;
+
+  /// No description provided for @monItem5.
+  ///
+  /// In en, this message translates to:
+  /// **'Observe for the presence of egg mass or white patches on leaves. At later stages observe for damage on leaves (elongated holes, torn appearance with frass).'**
+  String get monItem5;
+
+  /// No description provided for @pmItem1.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep ploughing to expose pupae for predation and direct exposure to sun light.'**
+  String get pmItem1;
+
+  /// No description provided for @lifecycleItem3.
+  ///
+  /// In en, this message translates to:
+  /// **'The Fall armyworm life cycle includes egg, 6 larval stages (instars), pupa and adult.'**
+  String get lifecycleItem3;
+
+  /// No description provided for @monItem6.
+  ///
+  /// In en, this message translates to:
+  /// **'Start scouting as soon as maize seedlings emerge and observe for the presence of damage symptoms.'**
+  String get monItem6;
+
+  /// No description provided for @sprayNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: Spray should be directed into the leaf whorls.'**
+  String get sprayNote;
+
+  /// No description provided for @pheromoneTraps.
+  ///
+  /// In en, this message translates to:
+  /// **'Pheromone Traps'**
+  String get pheromoneTraps;
+
+  /// No description provided for @phItem5.
+  ///
+  /// In en, this message translates to:
+  /// **'The major compound for FAW, S.frugiperda pheromone (Z)-9-Tetradecenylacetate (as major component) was characterized using chemical detectors and biological detector.'**
+  String get phItem5;
+
+  /// No description provided for @phItem1.
+  ///
+  /// In en, this message translates to:
+  /// **'Controlled released dispenser developed at ICAR-NBAIR is effective for over 45 days.'**
+  String get phItem1;
+
+  /// No description provided for @pmItem4.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow proper crop management process through recommended dose of manures and fertilizers.'**
+  String get pmItem4;
+
+  /// No description provided for @larva4_6Item5.
+  ///
+  /// In en, this message translates to:
+  /// **'On the older plants, caterpillar bores into the cobs and feeds on the developing kernels (seeds).'**
+  String get larva4_6Item5;
+
+  /// No description provided for @bcItem2.
+  ///
+  /// In en, this message translates to:
+  /// **'Metarhizium rileyi (= Nomuraea rileyi) and Metarhizium anisopliae infects several species of Lepidoptera. Spray M. rileyi @ 2-3 grams per liter of water (It is available at UAS, Dharwad) or M. anisopliae @ 3 grams per liter (it is available in all state biocontrol labs).'**
+  String get bcItem2;
+
+  /// No description provided for @bcItem3.
+  ///
+  /// In en, this message translates to:
+  /// **'Application of Bt insecticide @ 2 ml/litre. Give 2-3 sprays at 10 days interval.'**
+  String get bcItem3;
+
+  /// No description provided for @reiItem1.
+  ///
+  /// In en, this message translates to:
+  /// **'Spinetoram - Four hours'**
+  String get reiItem1;
+
+  /// No description provided for @reiItem2.
+  ///
+  /// In en, this message translates to:
+  /// **'Chlorantraniliprole - 12 hours.'**
+  String get reiItem2;
+
+  /// No description provided for @reiItem3.
+  ///
+  /// In en, this message translates to:
+  /// **'Thiamethaxam + lambda cyhalothrin - 24 hours.'**
+  String get reiItem3;
+
+  /// No description provided for @reiItem4.
+  ///
+  /// In en, this message translates to:
+  /// **'Bt insecticide - One day'**
+  String get reiItem4;
+
+  /// No description provided for @monItem4.
+  ///
+  /// In en, this message translates to:
+  /// **'Later stage (50-70 days after sowing) - more than 20% damaged plants.'**
+  String get monItem4;
 }
 
 class _AppLocalizationsDelegate

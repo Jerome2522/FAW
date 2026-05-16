@@ -18,9 +18,9 @@ class ImageService {
       final XFile? compressedFile = await FlutterImageCompress.compressAndGetFile(
         originalFile.absolute.path,
         targetPath,
-        minWidth: 800,
-        minHeight: 800,
-        quality: 85,
+        minWidth: 640,
+        minHeight: 640,
+        quality: 82,
       );
 
       if (compressedFile != null) {
@@ -32,5 +32,15 @@ class ImageService {
     }
 
     return originalFile;
+  }
+
+  static Future<void> cleanup(File file) async {
+    try {
+      if (await file.exists() && p.basename(file.path).startsWith('compressed_')) {
+        await file.delete();
+      }
+    } catch (e) {
+      print('Error cleaning up image: $e');
+    }
   }
 }

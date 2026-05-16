@@ -226,4 +226,169 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get larvaStage4_6 => 'Larval growth stage: 4-6 instars';
+
+  @override
+  String get fieldScouting => 'Field Scouting';
+
+  @override
+  String get bcItem1 =>
+      'At early crop stage (15-30 days after sowing): Release egg parasitoid. Trichogramma pretiosum @ 3 cards (50000 eggs)/acre - two times at 15 days interval. (Egg cards are available at NBAIR, Hebbal and RCIPMC, Kadugodi, Bangalore and State biocontrol labs).';
+
+  @override
+  String get monItem2 =>
+      'Mid stage (30-50 days after sowing) - 10-20% damaged plants.';
+
+  @override
+  String get reiTitle => 'Restricted Entry Interval (REI)';
+
+  @override
+  String get ccItem1 =>
+      'Spraying of Spinetoram 11.7 SC @ 0.5ml or Chlorantraniliprole 18.5 SC @ 0.4ml. Thiamethoxam 12.6% + lambda cyhalothrin 9.5% ZC.';
+
+  @override
+  String get larva1_3Item2 =>
+      'After hatching, the young caterpillars feed superficially on the leaves by scrapping and it results in appearance of semi-transparent white patches on the leaves.';
+
+  @override
+  String get phItem2 =>
+      'Install pheromone traps @ 15/acre for mass trapping of the male moths.';
+
+  @override
+  String get larva1_3Item3 =>
+      'Young caterpillars move to the new plants by spinning silken thread.';
+
+  @override
+  String get larva4_6Item3 =>
+      'Feeding on young plants can kill the growing point, resulting in no new leaves or cobs development.';
+
+  @override
+  String get pmItem2 =>
+      'Wherever possible, sow early at first rain and follow synchronous planting in entire maize area to reduce population build up and multiple generations of FAW.';
+
+  @override
+  String get larva1_3Item1 =>
+      'Caterpillars prefer to feed in leaf whorls of young plants and feed more actively during night time.';
+
+  @override
+  String get lifecycleItem1 =>
+      'The adult female moth lays 100-200 eggs on the leaves.';
+
+  @override
+  String get monItem1 =>
+      'Early to mid whorl stage (15-30 days after sowing) - 5 to 10% damaged plants.';
+
+  @override
+  String get monItem3 =>
+      'Install pheromone traps @ 4/acre soon after sowing and monitor moth catches.';
+
+  @override
+  String get biologicalSolutions => 'Biological Solutions';
+
+  @override
+  String get pmItem3 =>
+      'Intercrop/Alley/Mixed crop of maize with suitable pulse crops of particular region (pigeon pea/black gram/green gram).';
+
+  @override
+  String get actionThresholds => 'Action Thresholds';
+
+  @override
+  String get ccItem3 =>
+      'Collection and destruction of egg masses and neonate larvae whenever seen in the field.';
+
+  @override
+  String get ccItem2 =>
+      'Application of 5% NSKE / neem formulation - Azadirachtin 10000 ppm @ 2 ml per liter of water to kill eggs and neonate larvae.';
+
+  @override
+  String get phItem3 =>
+      'Community action for mass trapping will give successful control.';
+
+  @override
+  String get keyPreventiveStrategies => 'Key Preventive Strategies';
+
+  @override
+  String get larva4_6Item4 =>
+      'Large quantities of frass (caterpillar excreta) is seen in the whorl. When this dries, it resembles saw dust.';
+
+  @override
+  String get phItem4 =>
+      'The antennal response of adult S.frugiperda males to (Z)-9-Tetradecenylacetate confirmed the physiological response of the antennal neurons to pheromone.';
+
+  @override
+  String get lifecycleItem2 =>
+      'The eggs are covered in cream coloured protective scales. In 3-4 days neonates emerge from eggs and complete their life cycle in 36-42 days.';
+
+  @override
+  String get larva4_6Item2 =>
+      'Often there are only 1 or 2 caterpillars in each whorl as they become cannibalistic.';
+
+  @override
+  String get chemicalControlMeasures => 'Chemical Control Measures';
+
+  @override
+  String get larva4_6Item1 =>
+      'By stage 4-6, it reaches plant whorl and causes maximum damage to the plant and produces ragged holes in the leaves.';
+
+  @override
+  String get monItem5 =>
+      'Observe for the presence of egg mass or white patches on leaves. At later stages observe for damage on leaves (elongated holes, torn appearance with frass).';
+
+  @override
+  String get pmItem1 =>
+      'Deep ploughing to expose pupae for predation and direct exposure to sun light.';
+
+  @override
+  String get lifecycleItem3 =>
+      'The Fall armyworm life cycle includes egg, 6 larval stages (instars), pupa and adult.';
+
+  @override
+  String get monItem6 =>
+      'Start scouting as soon as maize seedlings emerge and observe for the presence of damage symptoms.';
+
+  @override
+  String get sprayNote =>
+      'Note: Spray should be directed into the leaf whorls.';
+
+  @override
+  String get pheromoneTraps => 'Pheromone Traps';
+
+  @override
+  String get phItem5 =>
+      'The major compound for FAW, S.frugiperda pheromone (Z)-9-Tetradecenylacetate (as major component) was characterized using chemical detectors and biological detector.';
+
+  @override
+  String get phItem1 =>
+      'Controlled released dispenser developed at ICAR-NBAIR is effective for over 45 days.';
+
+  @override
+  String get pmItem4 =>
+      'Follow proper crop management process through recommended dose of manures and fertilizers.';
+
+  @override
+  String get larva4_6Item5 =>
+      'On the older plants, caterpillar bores into the cobs and feeds on the developing kernels (seeds).';
+
+  @override
+  String get bcItem2 =>
+      'Metarhizium rileyi (= Nomuraea rileyi) and Metarhizium anisopliae infects several species of Lepidoptera. Spray M. rileyi @ 2-3 grams per liter of water (It is available at UAS, Dharwad) or M. anisopliae @ 3 grams per liter (it is available in all state biocontrol labs).';
+
+  @override
+  String get bcItem3 =>
+      'Application of Bt insecticide @ 2 ml/litre. Give 2-3 sprays at 10 days interval.';
+
+  @override
+  String get reiItem1 => 'Spinetoram - Four hours';
+
+  @override
+  String get reiItem2 => 'Chlorantraniliprole - 12 hours.';
+
+  @override
+  String get reiItem3 => 'Thiamethaxam + lambda cyhalothrin - 24 hours.';
+
+  @override
+  String get reiItem4 => 'Bt insecticide - One day';
+
+  @override
+  String get monItem4 =>
+      'Later stage (50-70 days after sowing) - more than 20% damaged plants.';
 }

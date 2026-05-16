@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,8 +9,7 @@ class PheromoneControlScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Pheromone Control',
+        title: Text(AppLocalizations.of(context)!.pheromoneControl,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -22,16 +22,16 @@ class PheromoneControlScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSection(
-              title: "Pheromone Traps",
+              title: AppLocalizations.of(context)!.pheromoneTraps,
               color: Colors.purple.shade700,
               icon: Icons.filter_center_focus,
               items: [
-                "The major compound for FAW, S.frugiperda pheromone (Z)-9-Tetradecenylacetate (as major component) was characterized using chemical detectors and biological detector.",
-                "The antennal response of adult S.frugiperda males to (Z)-9-Tetradecenylacetate confirmed the physiological response of the antennal neurons to pheromone.",
-                "Controlled released dispenser developed at ICAR-NBAIR is effective for over 45 days.",
-                "Install pheromone traps @ 4/acre soon after sowing and monitor moth catches.",
-                "Install pheromone traps @ 15/acre for mass trapping of the male moths.",
-                "Community action for mass trapping will give successful control.",
+                AppLocalizations.of(context)!.phItem5,
+                AppLocalizations.of(context)!.phItem4,
+                AppLocalizations.of(context)!.phItem1,
+                AppLocalizations.of(context)!.monItem3,
+                AppLocalizations.of(context)!.phItem2,
+                AppLocalizations.of(context)!.phItem3,
               ],
             ),
           ],

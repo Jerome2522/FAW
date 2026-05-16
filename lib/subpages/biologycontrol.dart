@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,8 +9,7 @@ class BiologicalControlScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Biological Control',
+        title: Text(AppLocalizations.of(context)!.biologicalControl,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -22,13 +22,13 @@ class BiologicalControlScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSection(
-              title: "Biological Solutions",
+              title: AppLocalizations.of(context)!.biologicalSolutions,
               color: Colors.green.shade700,
               icon: Icons.bug_report_outlined,
               items: [
-                "At early crop stage (15-30 days after sowing): Release egg parasitoid. Trichogramma pretiosum @ 3 cards (50000 eggs)/acre - two times at 15 days interval. (Egg cards are available at NBAIR, Hebbal and RCIPMC, Kadugodi, Bangalore and State biocontrol labs).",
-                "Metarhizium rileyi (= Nomuraea rileyi) and Metarhizium anisopliae infects several species of Lepidoptera. Spray M. rileyi @ 2-3 grams per liter of water (It is available at UAS, Dharwad) or M. anisopliae @ 3 grams per liter (it is available in all state biocontrol labs).",
-                "Application of Bt insecticide @ 2 ml/litre. Give 2-3 sprays at 10 days interval.",
+                AppLocalizations.of(context)!.bcItem1,
+                AppLocalizations.of(context)!.bcItem2,
+                AppLocalizations.of(context)!.bcItem3,
               ],
             ),
             const SizedBox(height: 20),
@@ -44,8 +44,7 @@ class BiologicalControlScreen extends StatelessWidget {
                   Icon(Icons.lightbulb_outline, color: Colors.orange.shade800),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      "Note: Spray should be directed into the leaf whorls.",
+                    child: Text(AppLocalizations.of(context)!.sprayNote,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: Colors.orange.shade900,

@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class Larva4To6Screen extends StatelessWidget {
@@ -8,8 +9,7 @@ class Larva4To6Screen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FBF8),
       appBar: AppBar(
-        title: const Text(
-          "Larval growth stage: 4-6 instars",
+        title: Text(AppLocalizations.of(context)!.larvalStage4To6,
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -43,15 +43,15 @@ class Larva4To6Screen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildBulletPoint(
-                      "By stage 4-6, it reaches plant whorl and causes maximum damage to the plant and produces ragged holes in the leaves."),
+                      AppLocalizations.of(context)!.larva4_6Item1),
                   _buildBulletPoint(
-                      "Feeding on young plants can kill the growing point, resulting in no new leaves or cobs development."),
+                      AppLocalizations.of(context)!.larva4_6Item3),
                   _buildBulletPoint(
-                      "Often there are only 1 or 2 caterpillars in each whorl as they become cannibalistic."),
+                      AppLocalizations.of(context)!.larva4_6Item2),
                   _buildBulletPoint(
-                      "Large quantities of frass (caterpillar excreta) is seen in the whorl. When this dries, it resembles saw dust."),
+                      AppLocalizations.of(context)!.larva4_6Item4),
                   _buildBulletPoint(
-                      "On the older plants, caterpillar bores into the cobs and feeds on the developing kernels (seeds)."),
+                      AppLocalizations.of(context)!.larva4_6Item5),
                 ],
               ),
             ),

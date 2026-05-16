@@ -1,3 +1,4 @@
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,8 +9,7 @@ class PreventiveMeasureScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Preventive Measures',
+        title: Text(AppLocalizations.of(context)!.preventiveMeasures,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -22,13 +22,13 @@ class PreventiveMeasureScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSection(
-              title: "Key Preventive Strategies",
+              title: AppLocalizations.of(context)!.keyPreventiveStrategies,
               color: const Color(0xFF2E7D32),
               items: [
-                "Deep ploughing to expose pupae for predation and direct exposure to sun light.",
-                "Wherever possible, sow early at first rain and follow synchronous planting in entire maize area to reduce population build up and multiple generations of FAW.",
-                "Intercrop/Alley/Mixed crop of maize with suitable pulse crops of particular region (pigeon pea/black gram/green gram).",
-                "Follow proper crop management process through recommended dose of manures and fertilizers.",
+                AppLocalizations.of(context)!.pmItem1,
+                AppLocalizations.of(context)!.pmItem2,
+                AppLocalizations.of(context)!.pmItem3,
+                AppLocalizations.of(context)!.pmItem4,
               ],
             ),
           ],

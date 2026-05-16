@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:flutter/services.dart';
 import 'dart:ui'; // Required for BackdropFilter
 import 'package:google_fonts/google_fonts.dart';
@@ -17,6 +18,26 @@ import 'features/prediction/prediction_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'config/firebase_options.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'services/pending_prediction_queue.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+class FadePageRoute<T> extends PageRouteBuilder<T> {
+  final Widget page;
+
+  FadePageRoute({required this.page})
+      : super(
+          pageBuilder: (context, animation, secondaryAnimation) => page,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeIn),
+              ),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 200),
+        );
+}
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +45,19 @@ void main() async {
   
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  // Initialize Offline Queue
+  await PendingPredictionQueue.initialize();
+  PendingPredictionQueue.processPending(); // Start background sync if any
+  
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
   );
   
   FlutterNativeSplash.remove();
@@ -75,6 +109,17 @@ class _MyAppState extends State<MyApp> {
           primary: const Color(0xFF2D6A4F),
           secondary: const Color(0xFF52B788), // Fresh green
         ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: const Color(0xFFF2F5F2),
+          foregroundColor: const Color(0xFF1B4332),
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF1B4332),
+          ),
+        ),
         useMaterial3: true,
       ),
       home: const FallArmywormScreen(),
@@ -89,12 +134,30 @@ class FallArmywormScreen extends StatefulWidget {
   State<FallArmywormScreen> createState() => _FallArmywormScreenState();
 }
 
-class _FallArmywormScreenState extends State<FallArmywormScreen> {
+class _FallArmywormScreenState extends State<FallArmywormScreen> with TickerProviderStateMixin {
   int _selectedIndex = 0;
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    print("CONNECTIVITY LISTENERS: Creating new listener in Home Screen.");
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+      if (results.isNotEmpty && results.first != ConnectivityResult.none) {
+        PendingPredictionQueue.processPending();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
 
   void _onItemTapped(int index) async {
     if (index == 1) {
-      await _showScanOptions();
+      _showScanOptions();
       return;
     }
     HapticFeedback.lightImpact();
@@ -104,6 +167,8 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
   }
 
   Future<void> _showScanOptions() async {
+    final previousIndex = _selectedIndex;
+
     var status = await Permission.camera.status;
     if (!status.isGranted) {
       bool? allowed = await showDialog<bool>(
@@ -136,6 +201,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -144,35 +210,193 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
         return SafeArea(
           child: Wrap(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                child: ListTile(
-                  leading: const Icon(Icons.camera_alt_rounded, color: Color(0xFF2D6A4F)),
-                  title: Text('Camera', style: GoogleFonts.poppins()),
-                  onTap: () async {
-                    Navigator.pop(context);
-                    final image = await CameraService().takePicture();
-                    _handleImage(image);
-                  },
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 12, bottom: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: ListTile(
-                  leading: const Icon(Icons.photo_library_rounded, color: Color(0xFF2D6A4F)),
-                  title: Text('Gallery', style: GoogleFonts.poppins()),
-                  onTap: () async {
-                    Navigator.pop(context);
-                    final image = await CameraService().chooseFromGallery();
-                    _handleImage(image);
-                  },
+                padding: const EdgeInsets.only(top: 8.0, bottom: 20.0),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        "Scan Your Crop",
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: const Color(0xFF1B4332),
+                        ),
+                      ),
+                      Text(
+                        "Take or upload a photo for analysis",
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2D6A4F).withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFF2D6A4F).withOpacity(0.15),
+                  ),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    Navigator.pop(context, true);
+                    CameraService().takePicture().then((image) {
+                      _handleImage(image);
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2D6A4F).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.camera_alt_rounded,
+                              size: 26,
+                              color: Color(0xFF2D6A4F),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Take a Photo",
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                  color: const Color(0xFF1B4332),
+                                ),
+                              ),
+                              Text(
+                                "Use your camera to scan",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 14,
+                          color: Colors.grey[400],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2D6A4F).withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFF2D6A4F).withOpacity(0.15),
+                  ),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    Navigator.pop(context, true);
+                    CameraService().chooseFromGallery().then((image) {
+                      _handleImage(image);
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2D6A4F).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.photo_library_rounded,
+                              size: 26,
+                              color: Color(0xFF2D6A4F),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Choose from Gallery",
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                  color: const Color(0xFF1B4332),
+                                ),
+                              ),
+                              Text(
+                                "Upload an existing photo",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 14,
+                          color: Colors.grey[400],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
             ],
           ),
         );
       },
-    );
+    ).then((value) {
+      if (value != true) {
+        if (mounted) {
+          setState(() {
+            _selectedIndex = previousIndex;
+          });
+        }
+      }
+    });
   }
 
   void _handleImage(dynamic image) async {
@@ -180,8 +404,8 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
       if (!mounted) return;
       await Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => PredictionPage(image: image),
+        FadePageRoute(
+          page: PredictionPage(image: image),
         ),
       );
       if (mounted) {
@@ -204,6 +428,16 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
         ),
       ),
       child: child,
+    );
+  }
+
+  void _navigateWithFeedback(BuildContext context, Widget page) async {
+    HapticFeedback.lightImpact();
+    await Future.delayed(const Duration(milliseconds: 100)); // Prevent double tap
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      FadePageRoute(page: page),
     );
   }
 
@@ -256,9 +490,28 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
           ),
           
           AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 250),
             transitionBuilder: (Widget child, Animation<double> animation) {
-              return FadeTransition(opacity: animation, child: child);
+              final inAnimation = Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              ));
+              final outAnimation = Tween<Offset>(
+                begin: const Offset(-1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              ));
+              
+              if (child.key == ValueKey(_selectedIndex)) {
+                return SlideTransition(position: inAnimation, child: child);
+              } else {
+                return SlideTransition(position: outAnimation, child: child);
+              }
             },
             child: _selectedIndex == 0
                 ? SafeArea(
@@ -398,12 +651,12 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                     children: [
                       Image.asset(
                         "lib/images/fawhome.jpg",
-                        height: 240,
+                        height: MediaQuery.of(context).size.height * 0.28,
                         width: double.infinity,
                         fit: BoxFit.cover,
                         cacheWidth: 800,
                         errorBuilder: (context, error, stackTrace) => Container(
-                          height: 240,
+                          height: MediaQuery.of(context).size.height * 0.28,
                           color: Colors.grey[200],
                           child: const Center(
                             child: Icon(Icons.broken_image,
@@ -412,7 +665,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                         ),
                       ),
                       Container(
-                        height: 240,
+                        height: MediaQuery.of(context).size.height * 0.28,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
@@ -525,14 +778,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                           icon: Icons.search,
                           title: AppLocalizations.of(context)!.identification,
                           color: const Color(0xFF40916C),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const IdentificationScreen(),
-                              ),
-                            );
-                          },
+                          onTap: () => _navigateWithFeedback(context, const IdentificationScreen()),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -541,14 +787,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                           icon: Icons.warning_amber_rounded,
                           title: AppLocalizations.of(context)!.damageSymptoms,
                           color: const Color(0xFFD97706),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const DamageSymptomsScreen(),
-                              ),
-                            );
-                          },
+                          onTap: () => _navigateWithFeedback(context, const DamageSymptomsScreen()),
                         ),
                       ),
                     ],
@@ -561,14 +800,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                           icon: Icons.science_outlined,
                           title: AppLocalizations.of(context)!.biology,
                           color: const Color(0xFF7C3AED),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const BiologyScreen(),
-                              ),
-                            );
-                          },
+                          onTap: () => _navigateWithFeedback(context, const BiologyScreen()),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -577,14 +809,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                           icon: Icons.bar_chart,
                           title: AppLocalizations.of(context)!.management,
                           color: const Color(0xFF0D9488),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ManagementScreen(),
-                              ),
-                            );
-                          },
+                          onTap: () => _navigateWithFeedback(context, const ManagementScreen()),
                         ),
                       ),
                     ],
@@ -596,14 +821,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                     subtitle: AppLocalizations.of(context)!.fullControlGuide,
                     color: const Color(0xFFB91C1C),
                     isFullWidth: true,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ControlScreen(),
-                        ),
-                      );
-                    },
+                    onTap: () => _navigateWithFeedback(context, const ControlScreen()),
                   ),
                 ],
               ),
@@ -690,6 +908,8 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
           child: InkWell(
             onTap: onTap,
             borderRadius: BorderRadius.circular(24),
+            splashColor: color.withOpacity(0.1),
+            highlightColor: color.withOpacity(0.05),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: isFullWidth
