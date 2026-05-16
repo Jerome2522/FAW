@@ -33,17 +33,16 @@ class ApiService {
       ),
     );
     
-    print("DEBUG: Request URL: $uri");
-    print("DEBUG: Headers: ${request.headers}");
-    print("DEBUG: Fields: ${request.fields}");
-    print("DEBUG: Image Path: ${imageFile.path} (${imageFile.lengthSync()} bytes)");
+    print("REQUEST URL: $uri");
+    print("X-API-Key: ${AppConfig.apiKey}");
 
+    print("TIMEOUT SET: 90s");
     try {
-      final streamedResponse = await request.send().timeout(const Duration(seconds: 30));
+      final streamedResponse = await request.send().timeout(const Duration(seconds: 90));
       final response = await http.Response.fromStream(streamedResponse);
       
-      print("DEBUG: Response Status: ${response.statusCode}");
-      print("DEBUG: Response Body: ${response.body}");
+      print("STATUS CODE: ${response.statusCode}");
+      print("RESPONSE: ${response.body}");
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
@@ -55,7 +54,7 @@ class ApiService {
       print("DEBUG: Request Timeout");
       rethrow;
     } on SocketException catch (e) {
-      print("DEBUG: SocketException: ${e.message}, Address: ${e.address}, Port: ${e.port}");
+      print("SOCKET ERROR: $e");
       rethrow;
     } catch (e) {
       print("DEBUG: Unexpected Error: $e");

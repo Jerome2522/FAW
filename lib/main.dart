@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'dart:ui'; // Required for BackdropFilter
+import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -49,6 +50,20 @@ void main() async {
   
   // Initialize Offline Queue
   await PendingPredictionQueue.initialize();
+  
+  // Production Render wake-up ping
+  print("SERVER WAKEUP START");
+  try {
+    final healthUri = Uri.parse("https://faw-backend.onrender.com/health");
+    await Stream.fromFuture(
+      http.get(healthUri).timeout(const Duration(seconds: 10))
+    ).first.catchError((_) => null);
+    await Future.delayed(const Duration(seconds: 2));
+    print("SERVER WAKEUP DONE");
+  } catch (e) {
+    print("SERVER WAKEUP IGNORED: $e");
+  }
+
   PendingPredictionQueue.processPending(); // Start background sync if any
   
   SystemChrome.setSystemUIOverlayStyle(

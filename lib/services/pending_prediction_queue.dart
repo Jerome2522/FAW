@@ -15,11 +15,40 @@ class PendingPredictionQueue {
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
+    await _cleanupStaleItems();
   }
 
   static Future<Directory> _getQueueDir() async {
     final appDir = await getApplicationDocumentsDirectory();
     return Directory(p.join(appDir.path, _queueDirName));
+  }
+
+  static Future<void> _cleanupStaleItems() async {
+    final dir = await _getQueueDir();
+    if (!await dir.exists()) return;
+
+    final List<FileSystemEntity> files = dir.listSync();
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final oneDayMs = 24 * 60 * 60 * 1000;
+
+    for (var file in files.whereType<File>().where((f) => f.path.endsWith('.json'))) {
+      try {
+        final Map<String, dynamic> metadata = json.decode(await file.readAsString());
+        final int timestamp = metadata['timestamp'] ?? 0;
+        
+        if (now - timestamp > oneDayMs) {
+          final String uuid = p.basenameWithoutExtension(file.path);
+          final imageFile = File(p.join(dir.path, '$uuid.jpg'));
+          
+          await file.delete();
+          if (await imageFile.exists()) await imageFile.delete();
+          print("QUEUE CLEANUP: removed stale item $uuid");
+        }
+      } catch (e) {
+        // Corrupted file
+        await file.delete();
+      }
+    }
   }
 
   static Future<void> enqueuePrediction(XFile image, String requestId) async {
@@ -57,56 +86,66 @@ class PendingPredictionQueue {
       final dir = await _getQueueDir();
       if (!await dir.exists()) return;
 
-    final List<FileSystemEntity> files = dir.listSync();
-    final List<File> metaFiles = files
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.json'))
-        .toList();
+      final List<FileSystemEntity> files = dir.listSync();
+      final List<File> metaFiles = files
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.json'))
+          .toList();
 
-    print("QUEUE PROCESSING: SIZE=${metaFiles.length}");
+      print("QUEUE PROCESSING: SIZE=${metaFiles.length}");
 
-    for (var metaFile in metaFiles) {
-      final String uuid = p.basenameWithoutExtension(metaFile.path);
-      final String imagePath = p.join(dir.path, '$uuid.jpg');
-      final File imageFile = File(imagePath);
+      for (var metaFile in metaFiles) {
+        final String uuid = p.basenameWithoutExtension(metaFile.path);
+        final String imagePath = p.join(dir.path, '$uuid.jpg');
+        final File imageFile = File(imagePath);
 
-      if (!await imageFile.exists()) {
-        await metaFile.delete();
-        continue;
+        if (!await imageFile.exists()) {
+          await metaFile.delete();
+          continue;
+        }
+
+        final Map<String, dynamic> metadata = json.decode(await metaFile.readAsString());
+        int retryCount = metadata['retryCount'] ?? 0;
+
+        if (retryCount >= 3) {
+          print("QUEUE DISCARDED: $uuid (Max retries)");
+          await metaFile.delete();
+          await imageFile.delete();
+          continue;
+        }
+
+        try {
+          print("UPLOAD RETRY: $uuid (Attempt ${retryCount + 1})");
+          await ApiService.predict(imageFile);
+          
+          // Success: Clean up
+          await metaFile.delete();
+          await imageFile.delete();
+          print("QUEUE SUCCESS: $uuid");
+          
+          // Wait before next upload to avoid overwhelming Render
+          print("QUEUE WAITING: 15s before next upload");
+          await Future.delayed(const Duration(seconds: 15));
+        } catch (e) {
+          final String errorStr = e.toString();
+          bool isServerBusy = errorStr.contains('502') || 
+                            errorStr.contains('503') || 
+                            errorStr.contains('504');
+
+          if (isServerBusy) {
+            print("SERVER BUSY: delaying retry for $uuid");
+          }
+
+          print("QUEUE FAILED: $uuid - $e");
+          retryCount++;
+          metadata['retryCount'] = retryCount;
+          await metaFile.writeAsString(json.encode(metadata));
+          
+          // New Retry schedule: 10s, 30s, 60s
+          final int delaySec = (retryCount == 1) ? 10 : (retryCount == 2 ? 30 : 60);
+          await Future.delayed(Duration(seconds: delaySec));
+        }
       }
-
-      final Map<String, dynamic> metadata = json.decode(await metaFile.readAsString());
-      int retryCount = metadata['retryCount'] ?? 0;
-
-      if (retryCount >= 3) {
-        print("QUEUE DISCARDED: $uuid (Max retries)");
-        await metaFile.delete();
-        await imageFile.delete();
-        continue;
-      }
-
-      try {
-        print("UPLOAD RETRY: $uuid (Attempt ${retryCount + 1})");
-        await ApiService.predict(imageFile);
-        
-        // Success: Clean up
-        await metaFile.delete();
-        await imageFile.delete();
-        print("QUEUE SUCCESS: $uuid");
-      } catch (e) {
-        print("QUEUE FAILED: $uuid - $e");
-        retryCount++;
-        metadata['retryCount'] = retryCount;
-        await metaFile.writeAsString(json.encode(metadata));
-        
-        // Exponential backoff delay
-        final int delaySec = (retryCount == 1) ? 2 : (retryCount == 2 ? 4 : 8);
-        await Future.delayed(Duration(seconds: delaySec));
-      }
-      
-      // Delay between items
-      await Future.delayed(const Duration(seconds: 2));
-    }
     } finally {
       _isProcessing = false;
       print("QUEUE ACTIVE: Sync process completed.");
