@@ -391,4 +391,56 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get monItem4 =>
       'Later stage (50-70 days after sowing) - more than 20% damaged plants.';
+
+  @override
+  String get scanYourCrop => 'Scan Your Crop';
+
+  @override
+  String get captureLeafInsect =>
+      'Capture a leaf or insect image for AI analysis';
+
+  @override
+  String get openCamera => 'Open Camera';
+
+  @override
+  String get chooseFromGallery => 'Choose From Gallery';
+
+  @override
+  String get tipsForDetection => 'Tips for Better Detection';
+
+  @override
+  String get tipOneSubject => 'Capture only one subject';
+
+  @override
+  String get tipKeepFocused => 'Keep image focused';
+
+  @override
+  String get tipMoveCloser => 'Move closer to crop';
+
+  @override
+  String get tipUseDaylight => 'Use daylight if possible';
+
+  @override
+  String get tipAvoidUnrelated => 'Avoid unrelated objects';
+
+  @override
+  String get recentScans => 'Recent Scans';
+
+  @override
+  String get recentImages => 'Recent Images';
+
+  @override
+  String get cropCareGuide => 'Crop Care Guide';
+
+  @override
+  String get pestPrevention => 'Pest Prevention';
+
+  @override
+  String get healthyCropPractices => 'Healthy Crop Practices';
+
+  @override
+  String get howToCapturePhotos => 'How to Capture Better Photos';
+
+  @override
+  String get scanHub => 'Scan Hub';
 }

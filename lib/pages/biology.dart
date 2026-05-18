@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:google_fonts/google_fonts.dart';
 import '../l10n/app_localizations.dart';
-import '../subpages/lifecycle.dart'; // Import the Life Cycle screen
-import '../subpages/larva1-3.dart'; // Import the Larva 1-3 screen
-import '../subpages/larva4-6.dart'; // Import the Larva 4-6 screen
+import '../subpages/lifecycle.dart';
+import '../subpages/larva1-3.dart';
+import '../subpages/larva4-6.dart';
 
 class BiologyScreen extends StatelessWidget {
   const BiologyScreen({super.key});
@@ -11,22 +12,23 @@ class BiologyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FBF8),
+      backgroundColor: const Color(0xFFE8EEE8),
       appBar: AppBar(
         title: Text(
           AppLocalizations.of(context)!.biology,
-          style: GoogleFonts.poppins(
-            color: Colors.black,
+          style: GoogleFonts.outfit(
+            color: const Color(0xFF1B4332),
             fontWeight: FontWeight.bold,
+            fontSize: 22,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Color(0xFF1B4332)),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
           children: [
             _buildBiologyOption(
@@ -93,6 +95,7 @@ class BiologyScreen extends StatelessWidget {
                         title: AppLocalizations.of(context)!.adult)),
               ),
             ),
+            const SizedBox(height: 40),
           ],
         ),
       ),
@@ -102,32 +105,63 @@ class BiologyScreen extends StatelessWidget {
   Widget _buildBiologyOption(
       BuildContext context, String title, VoidCallback onTap) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.purple.shade100, width: 1.5),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.purple.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.01),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        title: Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-            color: Colors.black87,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onTap();
+          },
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2D6A4F).withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.science_outlined,
+                    size: 20,
+                    color: Color(0xFF2D6A4F),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: const Color(0xFF1B4332),
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: Color(0xFF2D6A4F),
+                ),
+              ],
+            ),
           ),
         ),
-        trailing: Icon(Icons.arrow_forward_ios_rounded,
-            size: 18, color: Colors.purple.shade300),
-        onTap: onTap,
       ),
     );
   }
@@ -141,33 +175,41 @@ class BiologyDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FBF8),
+      backgroundColor: const Color(0xFFE8EEE8),
       appBar: AppBar(
         title: Text(
           title,
-          style: GoogleFonts.poppins(
-            color: Colors.black,
+          style: GoogleFonts.outfit(
+            color: const Color(0xFF1B4332),
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: 20,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Color(0xFF1B4332)),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.science_outlined, size: 80, color: Colors.purple.shade200),
-            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2D6A4F).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.science_outlined, size: 60, color: Color(0xFF2D6A4F)),
+            ),
+            const SizedBox(height: 24),
             Text(
               "Details for $title\nwill be added here.",
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 16,
-                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF1B4332).withOpacity(0.7),
               ),
             ),
           ],

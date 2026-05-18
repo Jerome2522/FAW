@@ -111,5 +111,22 @@
     "reiItem2": "Chlorantraniliprole - 12 hours.",
     "reiItem3": "Thiamethaxam + lambda cyhalothrin - 24 hours.",
     "reiItem4": "Bt insecticide - One day",
-    "monItem4": "Later stage (50-70 days after sowing) - more than 20% damaged plants."
+    "monItem4": "Later stage (50-70 days after sowing) - more than 20% damaged plants.",
+    "scanYourCrop": "Scan Your Crop",
+    "captureLeafInsect": "Capture a leaf or insect image for AI analysis",
+    "openCamera": "Open Camera",
+    "chooseFromGallery": "Choose From Gallery",
+    "tipsForDetection": "Tips for Better Detection",
+    "tipOneSubject": "Capture only one subject",
+    "tipKeepFocused": "Keep image focused",
+    "tipMoveCloser": "Move closer to crop",
+    "tipUseDaylight": "Use daylight if possible",
+    "tipAvoidUnrelated": "Avoid unrelated objects",
+    "recentScans": "Recent Scans",
+    "recentImages": "Recent Images",
+    "cropCareGuide": "Crop Care Guide",
+    "pestPrevention": "Pest Prevention",
+    "healthyCropPractices": "Healthy Crop Practices",
+    "howToCapturePhotos": "How to Capture Better Photos",
+    "scanHub": "Scan Hub"
 }

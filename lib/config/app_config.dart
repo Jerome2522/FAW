@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class AppConfig {
   static const String apiKey =
       String.fromEnvironment('ML_API_KEY', 
@@ -12,4 +10,5 @@ class AppConfig {
   }
 
   static const String predictEndpoint = '/predict';
+  static const String chatEndpoint = '/krishi-chat';
 }

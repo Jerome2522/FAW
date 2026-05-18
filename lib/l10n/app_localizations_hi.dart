@@ -390,4 +390,56 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get monItem4 =>
       'बाद का चरण (बुवाई के 50-70 दिन बाद) - 20% से अधिक क्षतिग्रस्त पौधे।';
+
+  @override
+  String get scanYourCrop => 'अपनी फसल स्कैन करें';
+
+  @override
+  String get captureLeafInsect =>
+      'एआई विश्लेषण के लिए पत्ती या कीट की छवि कैप्चर करें';
+
+  @override
+  String get openCamera => 'कैमरा खोलें';
+
+  @override
+  String get chooseFromGallery => 'गैलरी से चुनें';
+
+  @override
+  String get tipsForDetection => 'बेहतर पहचान के सुझाव';
+
+  @override
+  String get tipOneSubject => 'केवल एक विषय को कैप्चर करें';
+
+  @override
+  String get tipKeepFocused => 'छवि को केंद्रित रखें';
+
+  @override
+  String get tipMoveCloser => 'फसल के करीब जाएं';
+
+  @override
+  String get tipUseDaylight => 'यदि संभव हो तो दिन के उजाले का उपयोग करें';
+
+  @override
+  String get tipAvoidUnrelated => 'असंबंधित वस्तुओं से बचें';
+
+  @override
+  String get recentScans => 'हाल के स्कैन';
+
+  @override
+  String get recentImages => 'हाल की छवियां';
+
+  @override
+  String get cropCareGuide => 'फसल देखभाल गाइड';
+
+  @override
+  String get pestPrevention => 'कीट रोकथाम';
+
+  @override
+  String get healthyCropPractices => 'स्वस्थ फसल प्रथाएं';
+
+  @override
+  String get howToCapturePhotos => 'बेहतर तस्वीरें कैसे कैप्चर करें';
+
+  @override
+  String get scanHub => 'स्कैन हब';
 }

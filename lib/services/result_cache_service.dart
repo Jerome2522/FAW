@@ -47,6 +47,7 @@ class ResultCacheService {
     await prefs.setString(_lastResultKey, json.encode(data));
     await prefs.setInt(_timestampKey, DateTime.now().millisecondsSinceEpoch);
     print("CACHE WRITES: Successfully cached result for ${result.prediction?.label}");
+    print("CACHE SAVED");
   }
 
   static Future<Map<String, dynamic>?> loadLastResult() async {
@@ -75,5 +76,6 @@ class ResultCacheService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_lastResultKey);
     await prefs.remove(_timestampKey);
+    print("CACHE CLEARED");
   }
 }

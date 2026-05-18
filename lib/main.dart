@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/services.dart';
-import 'dart:ui'; // Required for BackdropFilter
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'l10n/app_localizations.dart';
-import 'pages/identifcation.dart'; // Import the new page
-import 'pages/damagesymptoms.dart'; // Import Damage Symptoms page
-import 'pages/biology.dart'; // Import Biology page
-import 'pages/management.dart'; // Import Management page
-import 'pages/control.dart'; // Import Control page
-import 'pages/contact.dart'; // Import Contact page
-import 'pages/labs.dart'; // Import Labs page
-import 'features/camera/camera_service.dart';
-import 'features/prediction/prediction_page.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'config/firebase_options.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'services/pending_prediction_queue.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'l10n/app_localizations.dart';
+import 'pages/splash_screen.dart';
+import 'pages/contact.dart';
+import 'pages/labs.dart';
+import 'pages/scan_hub.dart';
+import 'pages/identifcation.dart';
+import 'pages/damagesymptoms.dart';
+import 'pages/biology.dart';
+import 'pages/management.dart';
+import 'pages/control.dart';
+import 'config/firebase_options.dart';
+import 'services/pending_prediction_queue.dart';
+import 'widgets/navigation/lazy_indexed_stack_child.dart';
+import 'widgets/navigation/fade_indexed_stack.dart';
+import 'widgets/navigation/bottom_nav.dart';
 
 class FadePageRoute<T> extends PageRouteBuilder<T> {
   final Widget page;
@@ -36,13 +37,16 @@ class FadePageRoute<T> extends PageRouteBuilder<T> {
               child: child,
             );
           },
-          transitionDuration: const Duration(milliseconds: 200),
+          transitionDuration: const Duration(milliseconds: 350),
         );
 }
 
 void main() async {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Set highly optimized image cache constraints for low-end agricultural devices
+  PaintingBinding.instance.imageCache.maximumSize = 80; // Cache maximum 80 images
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 25 * 1024 * 1024; // Cap cache memory at 25 MB
   
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -52,16 +56,12 @@ void main() async {
   await PendingPredictionQueue.initialize();
   
   // Production Render wake-up ping
-  print("SERVER WAKEUP START");
   try {
     final healthUri = Uri.parse("https://faw-backend.onrender.com/health");
-    await Stream.fromFuture(
-      http.get(healthUri).timeout(const Duration(seconds: 10))
-    ).first.catchError((_) => null);
+    await http.get(healthUri).timeout(const Duration(seconds: 10));
     await Future.delayed(const Duration(seconds: 2));
-    print("SERVER WAKEUP DONE");
-  } catch (e) {
-    print("SERVER WAKEUP IGNORED: $e");
+  } catch (_) {
+    // Ignore server wakeup timeout or failure
   }
 
   PendingPredictionQueue.processPending(); // Start background sync if any
@@ -75,7 +75,6 @@ void main() async {
     ),
   );
   
-  FlutterNativeSplash.remove();
   runApp(const MyApp());
 }
 
@@ -117,7 +116,7 @@ class _MyAppState extends State<MyApp> {
       ],
       locale: _locale,
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFF2F5F2), // Lighter lush green-grey tint
+        scaffoldBackgroundColor: const Color(0xFFE8EEE8), // Richer agricultural green-grey tint
         textTheme: GoogleFonts.poppinsTextTheme(),
         primaryColor: const Color(0xFF2D6A4F), // Deep green
         colorScheme: ColorScheme.fromSwatch().copyWith(
@@ -125,7 +124,7 @@ class _MyAppState extends State<MyApp> {
           secondary: const Color(0xFF52B788), // Fresh green
         ),
         appBarTheme: AppBarTheme(
-          backgroundColor: const Color(0xFFF2F5F2),
+          backgroundColor: const Color(0xFFE8EEE8),
           foregroundColor: const Color(0xFF1B4332),
           elevation: 0,
           centerTitle: true,
@@ -137,7 +136,7 @@ class _MyAppState extends State<MyApp> {
         ),
         useMaterial3: true,
       ),
-      home: const FallArmywormScreen(),
+      home: const SplashScreen(),
     );
   }
 }
@@ -149,16 +148,23 @@ class FallArmywormScreen extends StatefulWidget {
   State<FallArmywormScreen> createState() => _FallArmywormScreenState();
 }
 
-class _FallArmywormScreenState extends State<FallArmywormScreen> with TickerProviderStateMixin {
-  int _selectedIndex = 0;
+class _FallArmywormScreenState extends State<FallArmywormScreen> {
+  final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
+  int _lastIndex = 0;
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  bool _isOffline = false;
 
   @override
   void initState() {
     super.initState();
-    print("CONNECTIVITY LISTENERS: Creating new listener in Home Screen.");
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
-      if (results.isNotEmpty && results.first != ConnectivityResult.none) {
+      final offline = results.isEmpty || results.first == ConnectivityResult.none;
+      if (offline != _isOffline) {
+        setState(() {
+          _isOffline = offline;
+        });
+      }
+      if (!offline) {
         PendingPredictionQueue.processPending();
       }
     });
@@ -167,289 +173,483 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> with TickerProv
   @override
   void dispose() {
     _connectivitySubscription.cancel();
+    _selectedIndex.dispose();
     super.dispose();
   }
 
-  void _onItemTapped(int index) async {
-    if (index == 1) {
-      _showScanOptions();
-      return;
-    }
+  void _onItemTapped(int index) {
     HapticFeedback.lightImpact();
-    setState(() {
-      _selectedIndex = index;
-    });
+    _lastIndex = _selectedIndex.value;
+    _selectedIndex.value = index;
   }
 
-  Future<void> _showScanOptions() async {
-    final previousIndex = _selectedIndex;
+  void navigateToPreviousTab() {
+    HapticFeedback.lightImpact();
+    _selectedIndex.value = _lastIndex;
+  }
 
-    var status = await Permission.camera.status;
-    if (!status.isGranted) {
-      bool? allowed = await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Camera Access Required"),
-            content: const Text(
-              "We need camera access to scan your crops for Fall Armyworm damage. Your photos are only used for analysis and are not stored without your consent."
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFE8EEE8),
+      extendBody: true, // Allows content to flow behind navigation bar for glass effect
+      body: Stack(
+        children: [
+          // Background blobs for glassmorphism effect visibility
+          Positioned(
+            top: -40,
+            right: -40,
+            child: Container(
+              height: 200,
+              width: 200,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0x261B3E2E), // Rich dark green hex alpha
+              ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text("Not Now"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text("Allow"),
-              ),
-            ],
-          );
-        },
-      );
-      
-      if (allowed != true) return;
-      await Permission.camera.request();
-    }
-
-    if (!mounted) return;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Wrap(
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 12, bottom: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 20.0),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        "Scan Your Crop",
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: const Color(0xFF1B4332),
-                        ),
-                      ),
-                      Text(
-                        "Take or upload a photo for analysis",
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2D6A4F).withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFF2D6A4F).withOpacity(0.15),
-                  ),
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () {
-                    Navigator.pop(context, true);
-                    CameraService().takePicture().then((image) {
-                      _handleImage(image);
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2D6A4F).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.camera_alt_rounded,
-                              size: 26,
-                              color: Color(0xFF2D6A4F),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Take a Photo",
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
-                                  color: const Color(0xFF1B4332),
-                                ),
-                              ),
-                              Text(
-                                "Use your camera to scan",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 14,
-                          color: Colors.grey[400],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2D6A4F).withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFF2D6A4F).withOpacity(0.15),
-                  ),
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () {
-                    Navigator.pop(context, true);
-                    CameraService().chooseFromGallery().then((image) {
-                      _handleImage(image);
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2D6A4F).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.photo_library_rounded,
-                              size: 26,
-                              color: Color(0xFF2D6A4F),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Choose from Gallery",
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
-                                  color: const Color(0xFF1B4332),
-                                ),
-                              ),
-                              Text(
-                                "Upload an existing photo",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 14,
-                          color: Colors.grey[400],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
           ),
-        );
-      },
-    ).then((value) {
-      if (value != true) {
-        if (mounted) {
-          setState(() {
-            _selectedIndex = previousIndex;
-          });
-        }
-      }
-    });
-  }
+          Positioned(
+            top: 300,
+            left: -40,
+            child: Container(
+              height: 160,
+              width: 160,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0x2628A269), // Emerald-tinted green hex alpha
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 80,
+            right: -20,
+            child: Container(
+              height: 180,
+              width: 180,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0x7F55875C), // Agricultural green-grey hex alpha
+              ),
+            ),
+          ),
+          
+          ValueListenableBuilder<int>(
+            valueListenable: _selectedIndex,
+            builder: (context, idx, _) {
+              return FadeIndexedStack(
+                index: idx,
+                children: [
+                  LazyIndexedStackChild(
+                    isActivated: idx == 0,
+                    child: const HomeDashboard(),
+                  ),
+                  LazyIndexedStackChild(
+                    isActivated: idx == 1,
+                    child: const ScanHubPage(),
+                  ),
+                  LazyIndexedStackChild(
+                    isActivated: idx == 2,
+                    child: const LabsScreen(),
+                  ),
+                  LazyIndexedStackChild(
+                    isActivated: idx == 3,
+                    child: const ContactScreen(),
+                  ),
+                ],
+              );
+            },
+          ),
 
-  void _handleImage(dynamic image) async {
-    if (image != null) {
-      if (!mounted) return;
-      await Navigator.push(
-        context,
-        FadePageRoute(
-          page: PredictionPage(image: image),
+          // Top Offline Connectivity Banner
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              bottom: false,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                height: _isOffline ? 32 : 0,
+                color: const Color(0xFFDC2626), // Solid deep red
+                width: double.infinity,
+                child: _isOffline
+                    ? const Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.wifi_off_rounded, color: Colors.white, size: 14),
+                            SizedBox(width: 8),
+                            Text(
+                              "Offline Mode — Scan predictions will be queued",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: RepaintBoundary(
+        child: ValueListenableBuilder<int>(
+          valueListenable: _selectedIndex,
+          builder: (context, idx, _) {
+            // Hide global bottom navigation when ScanHub page is active (index 1)
+            if (idx == 1) return const SizedBox.shrink();
+
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xA6FFFFFF), // Hardcoded white glass alpha
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: const Color(0xCCFFFFFF), // Border alpha
+                          width: 1.5,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x0A000000), // Shadow alpha
+                            blurRadius: 20,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      child: GNav(
+                        rippleColor: const Color(0x33FFFFFF), // Ripple alpha
+                        hoverColor: const Color(0x19FFFFFF), // Hover alpha
+                        gap: 8,
+                        activeColor: const Color(0xFF1B4332),
+                        iconSize: 24,
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                        duration: const Duration(milliseconds: 300),
+                        tabBackgroundColor: const Color(0x2652B788), // Tab background alpha
+                        color: const Color(0x992D6A4F), // Icon color alpha
+                        tabs: [
+                          GButton(icon: Icons.home_rounded, text: AppLocalizations.of(context)!.home),
+                          GButton(icon: Icons.camera_alt_rounded, text: 'Scan'),
+                          GButton(icon: Icons.science_outlined, text: AppLocalizations.of(context)!.labs),
+                          GButton(icon: Icons.mail_outline, text: AppLocalizations.of(context)!.contact),
+                        ],
+                        selectedIndex: idx,
+                        onTabChange: _onItemTapped,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
-      );
-      if (mounted) {
-        setState(() {
-          _selectedIndex = 0;
-        });
-      }
-    }
+      ),
+    );
   }
+}
 
-  Widget _buildGlassBox({required Widget child, BorderRadius? borderRadius}) {
+class GlassBox extends StatelessWidget {
+  final Widget child;
+  final BorderRadius? borderRadius;
+
+  const GlassBox({
+    super.key,
+    required this.child,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final radius = borderRadius ?? BorderRadius.circular(20);
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.65),
+        color: const Color(0xA6FFFFFF), // Glass white alpha
         borderRadius: radius,
         border: Border.all(
-          color: Colors.white.withOpacity(0.8),
+          color: const Color(0xCCFFFFFF), // Border white alpha
           width: 1.5,
         ),
       ),
       child: child,
     );
   }
+}
+
+class GridCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final Color color;
+  final VoidCallback onTap;
+  final bool isFullWidth;
+
+  const GridCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    required this.color,
+    required this.onTap,
+    this.isFullWidth = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final splashColor = Color.fromARGB(26, color.red, color.green, color.blue);
+    final highlightColor = Color.fromARGB(13, color.red, color.green, color.blue);
+    final circleColor = Color.fromARGB(26, color.red, color.green, color.blue);
+    final barColor = Color.fromARGB(77, color.red, color.green, color.blue);
+
+    return GlassBox(
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        height: isFullWidth ? 100 : 160,
+        color: Colors.transparent,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(24),
+            splashColor: splashColor,
+            highlightColor: highlightColor,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: isFullWidth
+                  ? Row(
+                      children: [
+                        Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            color: circleColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(icon, color: color, size: 26),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                title,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              if (subtitle != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  subtitle!,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: const Color(0xFF9E9E9E), // Hardcoded grey Color
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF9F9F9), // const grey[50]
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.arrow_forward_ios_rounded,
+                              size: 16, color: Color(0xFFBDBDBD)), // const grey[400]
+                        ),
+                      ],
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            color: circleColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(icon, color: color, size: 26),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              height: 4,
+                              width: 20,
+                              decoration: BoxDecoration(
+                                color: barColor,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LanguageSwitcher extends StatelessWidget {
+  final Function(Locale) onLocaleSelected;
+
+  const LanguageSwitcher({super.key, required this.onLocaleSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    final currentLocale = Localizations.localeOf(context);
+    final isEnglish = currentLocale.languageCode == 'en';
+    final primaryColor = Theme.of(context).primaryColor;
+
+    return PopupMenuButton<Locale>(
+      offset: const Offset(0, 50),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
+      onSelected: onLocaleSelected,
+      itemBuilder: (BuildContext context) {
+        return [
+          PopupMenuItem(
+            value: const Locale('en'),
+            child: SizedBox(
+              width: 140,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('English',
+                      style: GoogleFonts.poppins(
+                          fontWeight: isEnglish ? FontWeight.bold : FontWeight.w500,
+                          color: isEnglish ? primaryColor : Colors.black87)),
+                  Icon(Icons.check_rounded,
+                      color: isEnglish ? primaryColor : Colors.transparent,
+                      size: 20),
+                ],
+              ),
+            ),
+          ),
+          PopupMenuItem(
+            value: const Locale('hi'),
+            child: SizedBox(
+              width: 140,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('हिंदी (Hindi)',
+                      style: GoogleFonts.poppins(
+                          fontWeight: !isEnglish ? FontWeight.bold : FontWeight.w500,
+                          color: !isEnglish ? primaryColor : Colors.black87)),
+                  Icon(Icons.check_rounded,
+                      color: !isEnglish ? primaryColor : Colors.transparent,
+                      size: 20),
+                ],
+              ),
+            ),
+          ),
+        ];
+      },
+      child: Container(
+        height: 45,
+        width: 45,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x0D000000), // shadow alpha
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            )
+          ],
+        ),
+        child: Icon(Icons.translate_rounded,
+            size: 22, color: primaryColor),
+      ),
+    );
+  }
+}
+
+class HomeDashboard extends StatefulWidget {
+  const HomeDashboard({super.key});
+
+  @override
+  State<HomeDashboard> createState() => _HomeDashboardState();
+}
+
+class _HomeDashboardState extends State<HomeDashboard> with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late List<Animation<double>> _fadeAnimations;
+  late List<Animation<Offset>> _slideAnimations;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    _fadeAnimations = List.generate(5, (index) {
+      final start = 0.2 + (index * 0.12);
+      final end = (start + 0.45).clamp(0.0, 1.0);
+      return Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: _animController,
+          curve: Interval(start, end, curve: Curves.easeOutCubic),
+        ),
+      );
+    });
+
+    _slideAnimations = List.generate(5, (index) {
+      final start = 0.2 + (index * 0.12);
+      final end = (start + 0.45).clamp(0.0, 1.0);
+      return Tween<Offset>(begin: const Offset(0.0, 0.25), end: Offset.zero).animate(
+        CurvedAnimation(
+          parent: _animController,
+          curve: Interval(start, end, curve: Curves.easeOutCubic),
+        ),
+      );
+    });
+
+    _animController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
 
   void _navigateWithFeedback(BuildContext context, Widget page) async {
     HapticFeedback.lightImpact();
     await Future.delayed(const Duration(milliseconds: 100)); // Prevent double tap
-    if (!mounted) return;
+    if (!context.mounted) return;
     Navigator.push(
       context,
       FadePageRoute(page: page),
@@ -458,205 +658,76 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> with TickerProv
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2F5F2),
-      extendBody: true, // Allows content to flow behind navigation bar for glass effect
-      body: Stack(
-        children: [
-          // Background blobs for glassmorphism effect visibility
-          // Top Right Blob
-          Positioned(
-            top: -40,
-            right: -40,
-            child: Container(
-              height: 200,
-              width: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color.fromARGB(255, 27, 62, 46).withOpacity(0.15),
-              ),
-            ),
-          ),
-          // Left Middle Blob
-          Positioned(
-            top: 300,
-            left: -40,
-            child: Container(
-              height: 160,
-              width: 160,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color.fromARGB(255, 40, 162, 105).withOpacity(0.15),
-              ),
-            ),
-          ),
-          // Bottom Right Blob
-          Positioned(
-            bottom: 80,
-            right: -20,
-            child: Container(
-              height: 180,
-              width: 180,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color.fromARGB(255, 85, 135, 92).withOpacity(0.5),
-              ),
-            ),
-          ),
-          
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            transitionBuilder: (Widget child, Animation<double> animation) {
-              final inAnimation = Tween<Offset>(
-                begin: const Offset(1.0, 0.0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeInOut,
-              ));
-              final outAnimation = Tween<Offset>(
-                begin: const Offset(-1.0, 0.0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeInOut,
-              ));
-              
-              if (child.key == ValueKey(_selectedIndex)) {
-                return SlideTransition(position: inAnimation, child: child);
-              } else {
-                return SlideTransition(position: outAnimation, child: child);
-              }
-            },
-            child: _selectedIndex == 0
-                ? SafeArea(
-                    key: const ValueKey(0),
-                    bottom: false, // Don't safely inset bottom since we extended body
-                    child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 12, 24, 100), // Add bottom padding for nav bar
-              child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 12),
+    final size = MediaQuery.of(context).size; // Cached MediaQuery size
+    final l10n = AppLocalizations.of(context)!;
+    final primaryColor = Theme.of(context).primaryColor;
 
-              /// 🔹 Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          'lib/images/icarlogo.png',
-                          height: 48,
-                          fit: BoxFit.contain,
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              AppLocalizations.of(context)!.icarTitle,
-                              style: GoogleFonts.poppins(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                            Text(
-                              AppLocalizations.of(context)!.bipmTitle,
-                              style: GoogleFonts.poppins(
-                                color: Colors.grey[600],
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  PopupMenuButton<Locale>(
-                    offset: const Offset(0, 50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 4,
-                    onSelected: (Locale locale) {
-                      MyApp.setLocale(context, locale);
-                    },
-                    itemBuilder: (BuildContext context) {
-                      final currentLocale = Localizations.localeOf(context);
-                      final isEnglish = currentLocale.languageCode == 'en';
-                      return [
-                        PopupMenuItem(
-                          value: const Locale('en'),
-                          child: SizedBox(
-                            width: 140,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('English',
-                                    style: GoogleFonts.poppins(
-                                        fontWeight: isEnglish ? FontWeight.bold : FontWeight.w500,
-                                        color: isEnglish ? Theme.of(context).primaryColor : Colors.black87)),
-                                Icon(Icons.check_rounded,
-                                    color: isEnglish ? Theme.of(context).primaryColor : Colors.transparent,
-                                    size: 20),
-                              ],
+    return SafeArea(
+      bottom: false,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 100),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+
+            /// 🔹 Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'lib/images/icarlogo.png',
+                        height: 48,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.icarTitle,
+                            style: GoogleFonts.poppins(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: primaryColor,
                             ),
                           ),
-                        ),
-                        PopupMenuItem(
-                          value: const Locale('hi'),
-                          child: SizedBox(
-                            width: 140,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('हिंदी (Hindi)',
-                                    style: GoogleFonts.poppins(
-                                        fontWeight: !isEnglish ? FontWeight.bold : FontWeight.w500,
-                                        color: !isEnglish ? Theme.of(context).primaryColor : Colors.black87)),
-                                Icon(Icons.check_rounded,
-                                    color: !isEnglish ? Theme.of(context).primaryColor : Colors.transparent,
-                                    size: 20),
-                              ],
+                          Text(
+                            l10n.bipmTitle,
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey[600],
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
-                      ];
-                    },
-                    child: Container(
-                      height: 45,
-                      width: 45,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          )
                         ],
                       ),
-                      child: Icon(Icons.translate_rounded,
-                          size: 22, color: Theme.of(context).primaryColor),
-                    ),
-                  )
-                ],
-              ),
+                    ],
+                  ),
+                ),
+                LanguageSwitcher(
+                  onLocaleSelected: (Locale locale) {
+                    MyApp.setLocale(context, locale);
+                  },
+                ),
+              ],
+            ),
 
-              const SizedBox(height: 28),
+            const SizedBox(height: 28),
 
-              /// 🔹 Pest Image / Hero
-              Container(
+            /// 🔹 Pest Image / Hero
+            RepaintBoundary(
+              child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
-                      color: Theme.of(context).primaryColor.withOpacity(0.3),
+                      color: Color(0x4D2D6A4F), // Shadow alpha
                       blurRadius: 25,
-                      offset: const Offset(0, 10),
+                      offset: Offset(0, 10),
                     ),
                   ],
                 ),
@@ -664,32 +735,35 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> with TickerProv
                   borderRadius: BorderRadius.circular(30),
                   child: Stack(
                     children: [
-                      Image.asset(
-                        "lib/images/fawhome.jpg",
-                        height: MediaQuery.of(context).size.height * 0.28,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        cacheWidth: 800,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: MediaQuery.of(context).size.height * 0.28,
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: Icon(Icons.broken_image,
-                                size: 40, color: Colors.grey),
+                      Hero(
+                        tag: 'faw_hero_image',
+                        child: Image.asset(
+                          "lib/images/fawhome.jpg",
+                          height: size.height * 0.28,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          cacheWidth: 800,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            height: size.height * 0.28,
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: Icon(Icons.broken_image,
+                                  size: 40, color: Colors.grey),
+                            ),
                           ),
                         ),
                       ),
                       Container(
-                        height: MediaQuery.of(context).size.height * 0.28,
-                        decoration: BoxDecoration(
+                        height: size.height * 0.28,
+                        decoration: const BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Colors.black.withOpacity(0.7),
+                              Color(0xB2000000), // Gradient alpha
                             ],
-                            stops: const [0.6, 1.0],
+                            stops: [0.6, 1.0],
                           ),
                         ),
                       ),
@@ -701,7 +775,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> with TickerProv
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              AppLocalizations.of(context)!.appTitle,
+                              l10n.appTitle,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 26,
@@ -717,11 +791,11 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> with TickerProv
                             ),
                             Text(
                               "Spodoptera frugiperda",
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.95),
+                              style: const TextStyle(
+                                color: Color(0xF2FFFFFF), // Subtitle alpha
                                 fontSize: 14,
                                 fontStyle: FontStyle.italic,
-                                shadows: const [
+                                shadows: [
                                   Shadow(
                                     color: Colors.black45,
                                     offset: Offset(0, 1),
@@ -737,362 +811,145 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> with TickerProv
                   ),
                 ),
               ),
-
-              const SizedBox(height: 24),
-
-              /// 🔹 Description Section
-              _buildGlassBox(
-                borderRadius: BorderRadius.circular(20),
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.overview,
-                        style: GoogleFonts.poppins(
-                          fontSize: 23,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1B4332),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        AppLocalizations.of(context)!.fawDescription,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          height: 1.6,
-                          color: const Color(0xFF2D6A4F),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 32),
-              
-              /// 🔹 Grid Section Title
-              Text(
-                AppLocalizations.of(context)!.infoGuide,
-                style: GoogleFonts.poppins(
-                  fontSize: 23,
-                  fontWeight: FontWeight.bold,
-                  color: const Color.fromARGB(255, 32, 68, 53),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              /// 🔹 Custom Grid
-              Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildGridCard(
-                          icon: Icons.search,
-                          title: AppLocalizations.of(context)!.identification,
-                          color: const Color(0xFF40916C),
-                          onTap: () => _navigateWithFeedback(context, const IdentificationScreen()),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildGridCard(
-                          icon: Icons.warning_amber_rounded,
-                          title: AppLocalizations.of(context)!.damageSymptoms,
-                          color: const Color(0xFFD97706),
-                          onTap: () => _navigateWithFeedback(context, const DamageSymptomsScreen()),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildGridCard(
-                          icon: Icons.science_outlined,
-                          title: AppLocalizations.of(context)!.biology,
-                          color: const Color(0xFF7C3AED),
-                          onTap: () => _navigateWithFeedback(context, const BiologyScreen()),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildGridCard(
-                          icon: Icons.bar_chart,
-                          title: AppLocalizations.of(context)!.management,
-                          color: const Color(0xFF0D9488),
-                          onTap: () => _navigateWithFeedback(context, const ManagementScreen()),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  _buildGridCard(
-                    icon: Icons.shield_outlined,
-                    title: AppLocalizations.of(context)!.controlMeasures,
-                    subtitle: AppLocalizations.of(context)!.fullControlGuide,
-                    color: const Color(0xFFB91C1C),
-                    isFullWidth: true,
-                    onTap: () => _navigateWithFeedback(context, const ControlScreen()),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      )
-    : _selectedIndex == 2
-        ? const LabsScreen(key: ValueKey(2))
-        : _selectedIndex == 3
-            ? const ContactScreen(key: ValueKey(3))
-            : const SizedBox.shrink(key: ValueKey(-1)),
-          ),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          child: GNav(
-            rippleColor: Colors.grey[300]!,
-            hoverColor: Colors.grey[100]!,
-            gap: 8,
-            activeColor: const Color(0xFF2E7D32),
-            iconSize: 24,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            duration: const Duration(milliseconds: 400),
-            tabBackgroundColor: Colors.green.withOpacity(0.1),
-            color: Colors.grey[500]!,
-            tabs: [
-              GButton(
-                icon: Icons.home_rounded,
-                text: AppLocalizations.of(context)!.home,
-              ),
-              GButton(
-                icon: Icons.camera_alt_rounded,
-                text: 'Scan',
-              ),
-              GButton(
-                icon: Icons.science_outlined,
-                text: AppLocalizations.of(context)!.labs,
-              ),
-              GButton(
-                icon: Icons.mail_outline,
-                text: AppLocalizations.of(context)!.contact,
-              ),
-            ],
-            selectedIndex: _selectedIndex,
-            onTabChange: _onItemTapped,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGridCard({
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    required Color color,
-    required VoidCallback onTap,
-    bool isFullWidth = false,
-  }) {
-    return _buildGlassBox(
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        height: isFullWidth ? 100 : 160,
-        color: Colors.transparent, // Important for glass effect
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(24),
-            splashColor: color.withOpacity(0.1),
-            highlightColor: color.withOpacity(0.05),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: isFullWidth
-                  ? Row(
-                    children: [
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(icon, color: color, size: 26),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              title,
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            if (subtitle != null) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                subtitle,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.arrow_forward_ios_rounded,
-                            size: 16, color: Colors.grey[400]),
-                      ),
-                    ],
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(icon, color: color, size: 26),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Container(
-                            height: 4,
-                            width: 20,
-                            decoration: BoxDecoration(
-                              color: color.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-          ),
-        ),
-      ),
-    ));
-  }
-}
-
-// Simple Bottom Nav replacement since GNav requires package:google_nav_bar
-class GNav extends StatelessWidget {
-  final List<GButton> tabs;
-  final int selectedIndex;
-  final Function(int) onTabChange;
-  final Color activeColor;
-  final Color tabBackgroundColor;
-  final Color color;
-  final double gap;
-  final EdgeInsets padding;
-
-  const GNav({
-    super.key,
-    required this.tabs,
-    required this.selectedIndex,
-    required this.onTabChange,
-    required this.activeColor,
-    required this.tabBackgroundColor,
-    required this.color,
-    this.gap = 0,
-    this.padding = EdgeInsets.zero,
-    // unrelated params
-    Color? rippleColor,
-    Color? hoverColor,
-    double? iconSize,
-    Duration? duration,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: List.generate(tabs.length, (index) {
-        final isActive = index == selectedIndex;
-        return InkWell(
-          onTap: () => onTabChange(index),
-          borderRadius: BorderRadius.circular(20),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: padding,
-            decoration: BoxDecoration(
-              color: isActive ? tabBackgroundColor : Colors.transparent,
-              borderRadius: BorderRadius.circular(20),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  tabs[index].icon,
-                  color: isActive ? activeColor : color,
+
+            const SizedBox(height: 24),
+
+            /// 🔹 Description Section
+            GlassBox(
+              borderRadius: BorderRadius.circular(20),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.overview,
+                      style: GoogleFonts.poppins(
+                        fontSize: 23,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1B4332),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.fawDescription,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        height: 1.6,
+                        color: const Color(0xFF2D6A4F),
+                      ),
+                    ),
+                  ],
                 ),
-                if (isActive) ...[
-                  SizedBox(width: gap),
-                  Text(
-                    tabs[index].text,
-                    style: TextStyle(
-                      color: activeColor,
-                      fontWeight: FontWeight.w600,
+              ),
+            ),
+
+            const SizedBox(height: 32),
+            
+            /// 🔹 Grid Section Title
+            Text(
+              l10n.infoGuide,
+              style: GoogleFonts.poppins(
+                fontSize: 23,
+                fontWeight: FontWeight.bold,
+                color: const Color.fromARGB(255, 32, 68, 53),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            /// 🔹 Custom Grid
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: FadeTransition(
+                        opacity: _fadeAnimations[0],
+                        child: SlideTransition(
+                          position: _slideAnimations[0],
+                          child: GridCard(
+                            icon: Icons.search,
+                            title: l10n.identification,
+                            color: const Color(0xFF40916C),
+                            onTap: () => _navigateWithFeedback(context, const IdentificationScreen()),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: FadeTransition(
+                        opacity: _fadeAnimations[1],
+                        child: SlideTransition(
+                          position: _slideAnimations[1],
+                          child: GridCard(
+                            icon: Icons.warning_amber_rounded,
+                            title: l10n.damageSymptoms,
+                            color: const Color(0xFFD97706),
+                            onTap: () => _navigateWithFeedback(context, const DamageSymptomsScreen()),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FadeTransition(
+                        opacity: _fadeAnimations[2],
+                        child: SlideTransition(
+                          position: _slideAnimations[2],
+                          child: GridCard(
+                            icon: Icons.science_outlined,
+                            title: l10n.biology,
+                            color: const Color(0xFF7C3AED),
+                            onTap: () => _navigateWithFeedback(context, const BiologyScreen()),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: FadeTransition(
+                        opacity: _fadeAnimations[3],
+                        child: SlideTransition(
+                          position: _slideAnimations[3],
+                          child: GridCard(
+                            icon: Icons.bar_chart,
+                            title: l10n.management,
+                            color: const Color(0xFF0D9488),
+                            onTap: () => _navigateWithFeedback(context, const ManagementScreen()),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                FadeTransition(
+                  opacity: _fadeAnimations[4],
+                  child: SlideTransition(
+                    position: _slideAnimations[4],
+                    child: GridCard(
+                      icon: Icons.shield_outlined,
+                      title: l10n.controlMeasures,
+                      subtitle: l10n.fullControlGuide,
+                      color: const Color(0xFFB91C1C),
+                      isFullWidth: true,
+                      onTap: () => _navigateWithFeedback(context, const ControlScreen()),
                     ),
                   ),
-                ],
+                ),
               ],
             ),
-          ),
-        );
-      }),
+
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
-}
-
-class GButton {
-  final IconData icon;
-  final String text;
-
-  const GButton({required this.icon, required this.text});
 }

@@ -775,6 +775,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Later stage (50-70 days after sowing) - more than 20% damaged plants.'**
   String get monItem4;
+
+  /// No description provided for @scanYourCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Your Crop'**
+  String get scanYourCrop;
+
+  /// No description provided for @captureLeafInsect.
+  ///
+  /// In en, this message translates to:
+  /// **'Capture a leaf or insect image for AI analysis'**
+  String get captureLeafInsect;
+
+  /// No description provided for @openCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Camera'**
+  String get openCamera;
+
+  /// No description provided for @chooseFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose From Gallery'**
+  String get chooseFromGallery;
+
+  /// No description provided for @tipsForDetection.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips for Better Detection'**
+  String get tipsForDetection;
+
+  /// No description provided for @tipOneSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Capture only one subject'**
+  String get tipOneSubject;
+
+  /// No description provided for @tipKeepFocused.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep image focused'**
+  String get tipKeepFocused;
+
+  /// No description provided for @tipMoveCloser.
+  ///
+  /// In en, this message translates to:
+  /// **'Move closer to crop'**
+  String get tipMoveCloser;
+
+  /// No description provided for @tipUseDaylight.
+  ///
+  /// In en, this message translates to:
+  /// **'Use daylight if possible'**
+  String get tipUseDaylight;
+
+  /// No description provided for @tipAvoidUnrelated.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoid unrelated objects'**
+  String get tipAvoidUnrelated;
+
+  /// No description provided for @recentScans.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Scans'**
+  String get recentScans;
+
+  /// No description provided for @recentImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Images'**
+  String get recentImages;
+
+  /// No description provided for @cropCareGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop Care Guide'**
+  String get cropCareGuide;
+
+  /// No description provided for @pestPrevention.
+  ///
+  /// In en, this message translates to:
+  /// **'Pest Prevention'**
+  String get pestPrevention;
+
+  /// No description provided for @healthyCropPractices.
+  ///
+  /// In en, this message translates to:
+  /// **'Healthy Crop Practices'**
+  String get healthyCropPractices;
+
+  /// No description provided for @howToCapturePhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Capture Better Photos'**
+  String get howToCapturePhotos;
+
+  /// No description provided for @scanHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Hub'**
+  String get scanHub;
 }
 
 class _AppLocalizationsDelegate

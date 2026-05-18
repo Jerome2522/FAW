@@ -40,12 +40,15 @@ class PredictionService {
       // Cleanup compressed file after upload
       await ImageService.cleanup(compressedFile);
       
+      
       if (result.action == 'result') {
         await ResultCacheService.saveResult(result);
+      } else {
+        await ResultCacheService.clearCache();
       }
       
       return result;
-    } on SocketException catch (e) {
+    } on SocketException catch (_) {
       final String requestId = const Uuid().v4();
       await PendingPredictionQueue.enqueuePrediction(image, requestId);
       

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show rootBundle, HapticFeedback;
 import 'package:google_fonts/google_fonts.dart';
 import '../l10n/app_localizations.dart';
 
@@ -18,7 +18,7 @@ class LabsScreen extends StatefulWidget {
   State<LabsScreen> createState() => _LabsScreenState();
 }
 
-class _LabsScreenState extends State<LabsScreen> {
+class _LabsScreenState extends State<LabsScreen> with AutomaticKeepAliveClientMixin<LabsScreen> {
   List<Lab> _allLabs = [];
   List<Lab> _filteredLabs = [];
   bool _isLoading = true;
@@ -26,6 +26,9 @@ class _LabsScreenState extends State<LabsScreen> {
   String? _selectedState;
   List<String> _availableStates = [];
   bool _sortAscending = true;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -178,8 +181,58 @@ class _LabsScreenState extends State<LabsScreen> {
     return result;
   }
 
+  Widget _buildStateChip(String? state, String displayName) {
+    final bool isSelected = _selectedState == state;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        setState(() {
+          _selectedState = state;
+          _applyFilters();
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? const Color(0xFF2D6A4F) 
+              : Colors.white.withOpacity(0.65),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected 
+                ? const Color(0xFF2D6A4F) 
+                : Colors.white.withOpacity(0.8),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected 
+                  ? const Color(0xFF2D6A4F).withOpacity(0.2) 
+                  : Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            )
+          ],
+        ),
+        child: Center(
+          child: Text(
+            displayName,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected ? Colors.white : const Color(0xFF1B4332),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: _isLoading
@@ -219,41 +272,17 @@ class _LabsScreenState extends State<LabsScreen> {
                       children: [
                         Row(
                           children: [
-                            // State Filter Dropdown
+                            // State Filter Chips Horizontally Scrollable
                             Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(color: Colors.grey[300]!),
-                                ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    hint: Text(AppLocalizations.of(context)!.selectState, style: GoogleFonts.poppins(fontSize: 14)),
-                                    value: _selectedState,
-                                    isExpanded: true,
-                                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF2D6A4F)),
-                                    items: [
-                                      DropdownMenuItem<String>(
-                                        value: null,
-                                        child: Text(AppLocalizations.of(context)!.allStates, style: GoogleFonts.poppins(fontSize: 14)),
-                                      ),
-                                      ..._availableStates.map((state) {
-                                        return DropdownMenuItem<String>(
-                                          value: state,
-                                          child: Text(state, style: GoogleFonts.poppins(fontSize: 14)),
-                                        );
-                                      }).toList(),
-                                    ],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedState = value;
-                                        _applyFilters();
-                                      });
-                                    },
-                                    dropdownColor: Colors.white,
-                                  ),
+                              child: SizedBox(
+                                height: 44,
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
+                                  children: [
+                                    _buildStateChip(null, AppLocalizations.of(context)!.allStates),
+                                    ..._availableStates.map((state) => _buildStateChip(state, state)),
+                                  ],
                                 ),
                               ),
                             ),
@@ -261,43 +290,36 @@ class _LabsScreenState extends State<LabsScreen> {
                             // Sort Button
                             InkWell(
                               onTap: () {
+                                HapticFeedback.lightImpact();
                                 setState(() {
                                   _sortAscending = !_sortAscending;
                                   _applyFilters();
                                 });
                               },
-                              borderRadius: BorderRadius.circular(15),
+                              borderRadius: BorderRadius.circular(16),
                               child: Container(
-                                padding: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(color: Colors.grey[300]!),
+                                  color: Colors.white.withOpacity(0.65),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.5),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.02),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    )
+                                  ],
                                 ),
                                 child: Icon(
                                   _sortAscending ? Icons.sort_by_alpha_rounded : Icons.sort_rounded,
                                   color: const Color(0xFF2D6A4F),
+                                  size: 22,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        if (_selectedState != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Row(
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.showingLabsIn,
-                                  style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[600]),
-                                ),
-                                Text(
-                                  _selectedState!,
-                                  style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF2D6A4F)),
-                                ),
-                              ],
-                            ),
-                          ),
                       ],
                     ),
                   ),
@@ -321,16 +343,16 @@ class _LabsScreenState extends State<LabsScreen> {
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 16),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.85),
+                                  color: Colors.white,
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                    color: Colors.white,
-                                    width: 1.5,
+                                    color: const Color(0xFFE2E8F0),
+                                    width: 1.2,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF2D6A4F).withOpacity(0.08),
-                                      blurRadius: 15,
+                                      color: const Color(0xFF2D6A4F).withOpacity(0.02),
+                                      blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
                                   ],
