@@ -1,19 +1,19 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../l10n/app_localizations.dart';
 import '../features/camera/camera_service.dart';
-import '../features/prediction/prediction_page.dart';
 import '../services/scan_history_service.dart';
 import '../services/image_service.dart';
 import '../widgets/scale_on_tap.dart';
+import '../screens/result_screen.dart';
+import '../screens/history_screen.dart';
 
 // Import our new decomposed sub-widgets
-import 'scan_hub/hero_section.dart';
 import 'scan_hub/ai_tips.dart';
 import 'scan_hub/recent_scans.dart';
 import 'scan_hub/floating_scan_button.dart';
@@ -81,39 +81,40 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
     if (!mounted) return;
     await Navigator.push(
       context,
-      _createPremiumRoute(PredictionPage(image: image)),
+      _createPremiumRoute(ResultScreen(image: image)),
     );
     _loadHistory();
   }
 
   Future<void> _triggerCamera() async {
-    HapticFeedback.mediumImpact();
-    var status = await Permission.camera.status;
-    if (!mounted) return;
-    if (!status.isGranted) {
-      bool? allowed = await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Camera Access Required"),
-            content: const Text(
-              "We need camera access to scan your crops for Fall Armyworm damage. Your photos are only used for analysis and are not stored without your consent."
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text("Not Now"),
+    if (Platform.isAndroid) {
+      var status = await Permission.camera.status;
+      if (!mounted) return;
+      if (!status.isGranted) {
+        bool? allowed = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Camera Access Required"),
+              content: const Text(
+                "We need camera access to scan your crops for Fall Armyworm damage. Your photos are only used for analysis and are not stored without your consent."
               ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text("Allow"),
-              ),
-            ],
-          );
-        },
-      );
-      if (allowed != true) return;
-      await Permission.camera.request();
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text("Not Now"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text("Allow"),
+                ),
+              ],
+            );
+          },
+        );
+        if (allowed != true) return;
+        await Permission.camera.request();
+      }
     }
 
     final image = await CameraService().takePicture();
@@ -125,7 +126,6 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
   }
 
   Future<void> _triggerGallery() async {
-    HapticFeedback.mediumImpact();
     final image = await CameraService().chooseFromGallery();
     if (image != null) {
       // Immediate image compression before MLM evaluation and storage entering
@@ -282,18 +282,49 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
         }
       },
       child: Scaffold(
-       backgroundColor: const Color(0xFFE8EEE8),
+       backgroundColor: const Color(0xFFF3F7F4),
       appBar: AppBar(
         title: Text(
-          l10n.scanHub,
+          "Scan Hub",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF1B4332),
+            color: const Color(0xFF1E6B52),
           ),
         ),
         elevation: 0,
         backgroundColor: Colors.transparent,
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E6B52)),
+          onPressed: () {
+            bool handled = false;
+            context.visitAncestorElements((element) {
+              if (element is StatefulElement) {
+                final state = element.state;
+                try {
+                  (state as dynamic).navigateToPreviousTab();
+                  handled = true;
+                  return false; // Stop traversing
+                } catch (_) {}
+              }
+              return true;
+            });
+            if (!handled && Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history_rounded, color: Color(0xFF1E6B52)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HistoryScreen()),
+              );
+            },
+          ),
+        ],
       ),
       floatingActionButtonLocation: const AboveNavFabLocation(),
       floatingActionButton: FloatingScanButton(
@@ -310,7 +341,7 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
               width: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color.fromARGB(255, 27, 62, 46).withValues(alpha: 0.15),
+                color: const Color(0xFF1E6B52).withValues(alpha: 0.06),
               ),
             ),
           ),
@@ -322,7 +353,7 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
               width: 160,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color.fromARGB(255, 40, 162, 105).withValues(alpha: 0.15),
+                color: const Color(0xFF58D9A6).withValues(alpha: 0.06),
               ),
             ),
           ),
@@ -334,222 +365,282 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
               width: 180,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color.fromARGB(255, 85, 135, 92).withValues(alpha: 0.5),
+                color: const Color(0xFF1E6B52).withValues(alpha: 0.06),
               ),
             ),
           ),
-          SingleChildScrollView(
-            key: _storageKey,
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 1. Premium Animated Hero Card
-              PremiumHeroSection(
-                title: l10n.scanYourCrop,
-                subtitle: l10n.captureLeafInsect,
-              ),
-
-              const SizedBox(height: 20),
-
-              // 2. Weather & Farm Status Card
-              const _WeatherFarmStatusCard(),
-
-              const SizedBox(height: 20),
-
-              // 3. AI Assistant Card
-              const _AiAssistantCard(),
-
-              const SizedBox(height: 24),
-
-              // 4. Primary Actions (Buttons wrapped in Scale animations)
-              Row(
-                children: [
-                  Expanded(
-                    child: ScaleOnTap(
-                      onTap: _triggerCamera,
-                      child: Container(
-                        height: 100,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF2D6A4F), Color(0xFF52B788)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: SingleChildScrollView(
+                key: _storageKey,
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: Text(
+                          "FAW AI-powered crop diagnosis in seconds",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey[600],
                           ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF2D6A4F).withValues(alpha: 0.15),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
-                            )
-                          ],
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF3C7),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.2)),
+                        ),
+                        child: Row(
                           children: [
-                            const Icon(Icons.camera_alt_rounded, size: 24, color: Colors.white),
-                            const SizedBox(height: 8),
-                            Text(
-                              l10n.openCamera,
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                                color: Colors.white,
+                            const Icon(Icons.info_outline_rounded, color: Color(0xFFD97706), size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "FAW AI can make mistakes, check important info",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11.5,
+                                  color: const Color(0xFFB45309),
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ScaleOnTap(
-                      onTap: _triggerGallery,
-                      child: Container(
-                        height: 100,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF1B4332), Color(0xFF40916C)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF1B4332).withValues(alpha: 0.15),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
-                            )
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.photo_library_rounded, size: 24, color: Colors.white),
-                            const SizedBox(height: 8),
-                            Text(
-                              l10n.chooseFromGallery,
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                                color: Colors.white,
+                      const SizedBox(height: 24),
+                      // 1. Animated Scanner Circle & Badge
+                      const AnimatedScanner(),
+
+                      const SizedBox(height: 24),
+
+                      // 2. Weather & Farm Status Card
+                      const _WeatherFarmStatusCard(),
+
+                      const SizedBox(height: 24),
+
+                      // 3. AI Assistant Card
+                      const _AiAssistantCard(),
+
+                      const SizedBox(height: 24),
+
+                      // 4. Primary Actions (Row of buttons height 56px, radius 16px)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ScaleOnTap(
+                              onTap: _triggerCamera,
+                              child: Container(
+                                height: 56,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1E6B52),
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF1E6B52).withValues(alpha: 0.15),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    )
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.camera_alt_rounded, size: 20, color: Colors.white),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            l10n.openCamera,
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: ScaleOnTap(
+                              onTap: _triggerGallery,
+                              child: Container(
+                                height: 56,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: const Color(0xFF1E6B52), width: 1.5),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.02),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    )
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.photo_library_rounded, size: 20, color: Color(0xFF1E6B52)),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            l10n.chooseFromGallery,
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                              color: const Color(0xFF1E6B52),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // 5. AI Tips Rotation Banner (Decoupled & Highly Optimized)
+                      const AiTipsSection(),
+
+                      const SizedBox(height: 24),
+
+                      // 6. Recent Visual Scans & Images - deferred to reduce initial build cost
+                      if (_showDeferredContent)
+                        ValueListenableBuilder<List<ScanHistoryItem>>(
+                          valueListenable: _historyNotifier,
+                          builder: (context, history, _) {
+                            return RecentScansSection(
+                              history: history,
+                              onStartScan: _showScanOptionsBottomSheet,
+                              onLoadHistory: _loadHistory,
+                            );
+                          },
+                        )
+                      else
+                        // lightweight placeholder to avoid layout jumps
+                        Container(height: 236, decoration: const BoxDecoration(color: Colors.transparent)),
+
+                      const SizedBox(height: 32),
+
+                      // 7. Quick Tips Card
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE2EFE7),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.lightbulb_outline_rounded,
+                                color: Color(0xFF1E6B52),
+                                size: 28,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.tipsForDetection,
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      color: const Color(0xFF1E6B52),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _buildTipCheckmark(l10n.tipOneSubject),
+                                  const SizedBox(height: 4),
+                                  _buildTipCheckmark(l10n.tipUseDaylight),
+                                  const SizedBox(height: 4),
+                                  _buildTipCheckmark(l10n.tipKeepFocused),
+                                  const SizedBox(height: 4),
+                                  _buildTipCheckmark(l10n.tipMoveCloser),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Icon(
+                              Icons.chevron_right_rounded,
+                              color: Color(0xFF1E6B52),
+                              size: 24,
                             ),
                           ],
                         ),
                       ),
-                    ),
+
+                      const SizedBox(height: 32),
+
+                      // 8. Farmer Education Guide
+                      const GuideCardsSection(),
+
+                      // Standard spacer to prevent Floating Action Button from blocking visual content
+                      const SizedBox(height: 96),
+                    ],
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 28),
-
-              // 5. AI Tips Rotation Banner (Decoupled & Highly Optimized)
-              const AiTipsSection(),
-
-              const SizedBox(height: 28),
-
-              // 6. Recent Visual Scans & Images - deferred to reduce initial build cost
-              if (_showDeferredContent)
-                ValueListenableBuilder<List<ScanHistoryItem>>(
-                  valueListenable: _historyNotifier,
-                  builder: (context, history, _) {
-                    return RecentScansSection(
-                      history: history,
-                      onStartScan: _showScanOptionsBottomSheet,
-                      onLoadHistory: _loadHistory,
-                    );
-                  },
-                )
-              else
-                // lightweight placeholder to avoid layout jumps
-                Container(height: 236, decoration: BoxDecoration(color: Colors.transparent)),
-
-              const SizedBox(height: 32),
-
-              // 7. Quick Tips Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.01),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    )
-                  ],
-                  border: Border.all(color: Colors.grey.shade100),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.tipsForDetection,
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: const Color(0xFF1B4332),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTipItem(Icons.center_focus_weak_rounded, l10n.tipOneSubject),
-                    const SizedBox(height: 12),
-                    _buildTipItem(Icons.filter_center_focus_rounded, l10n.tipKeepFocused),
-                    const SizedBox(height: 12),
-                    _buildTipItem(Icons.zoom_in_rounded, l10n.tipMoveCloser),
-                    const SizedBox(height: 12),
-                    _buildTipItem(Icons.light_mode_rounded, l10n.tipUseDaylight),
-                    const SizedBox(height: 12),
-                    _buildTipItem(Icons.do_not_disturb_on_rounded, l10n.tipAvoidUnrelated),
-                  ],
                 ),
               ),
-
-              const SizedBox(height: 32),
-
-              // 8. Farmer Education Guide
-              const GuideCardsSection(),
-
-              // Standard spacer to prevent Floating Action Button from blocking visual content
-              const SizedBox(height: 96),
-            ],
+            ),
           ),
-        ),
-      ),
         ],
       ),
      ),
     );
   }
 
-  Widget _buildTipItem(IconData icon, String text) {
+  Widget _buildTipCheckmark(String text) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: const Color(0xFF2D6A4F).withValues(alpha: 0.08),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, size: 15, color: const Color(0xFF2D6A4F)),
-        ),
-        const SizedBox(width: 12),
+        const Icon(Icons.check_rounded, color: Color(0xFF1E6B52), size: 16),
+        const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
             style: GoogleFonts.poppins(
-              fontSize: 12.5,
+              fontSize: 12,
+              color: const Color(0xFF1E6B52),
               fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
             ),
           ),
         ),
@@ -568,15 +659,15 @@ class _WeatherFarmStatusCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: Colors.green.shade50),
+        border: Border.all(color: const Color(0xFF1E6B52).withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -593,7 +684,7 @@ class _WeatherFarmStatusCard extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: const Color(0xFF1B4332),
+                      color: const Color(0xFF1E6B52),
                     ),
                   ),
                 ],
@@ -601,14 +692,14 @@ class _WeatherFarmStatusCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  color: const Color(0xFF1E6B52).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.shade100),
+                  border: Border.all(color: const Color(0xFF1E6B52).withValues(alpha: 0.15)),
                 ),
                 child: Text(
                   "Optimal Check",
                   style: GoogleFonts.poppins(
-                    color: const Color(0xFF2D6A4F),
+                    color: const Color(0xFF1E6B52),
                     fontWeight: FontWeight.bold,
                     fontSize: 10,
                   ),
@@ -622,29 +713,29 @@ class _WeatherFarmStatusCard extends StatelessWidget {
             children: [
               _buildMetricItem(
                 icon: Icons.thermostat_rounded,
-                iconColor: Colors.orange.shade700,
+                iconColor: const Color(0xFF3B82F6),
                 label: "Temperature",
                 value: "29°C",
               ),
-              Container(width: 1, height: 36, color: Colors.grey.shade100),
+              Container(width: 1, height: 36, color: const Color(0xFF1E6B52).withValues(alpha: 0.08)),
               _buildMetricItem(
                 icon: Icons.water_drop_rounded,
                 iconColor: Colors.blue.shade700,
                 label: "Humidity",
                 value: "72%",
               ),
-              Container(width: 1, height: 36, color: Colors.grey.shade100),
+              Container(width: 1, height: 36, color: const Color(0xFF1E6B52).withValues(alpha: 0.08)),
               _buildMetricItem(
-                icon: Icons.bug_report_rounded,
-                iconColor: Colors.red.shade700,
-                label: "FAW Risk",
+                icon: Icons.verified_user_rounded,
+                iconColor: Colors.orange.shade700,
+                label: "Risk Level",
                 value: "Medium",
-                valueColor: Colors.red.shade700,
+                valueColor: Colors.orange.shade700,
               ),
             ],
           ),
           const SizedBox(height: 16),
-          const Divider(height: 1),
+          Divider(height: 1, color: const Color(0xFF1E6B52).withValues(alpha: 0.08)),
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -694,7 +785,7 @@ class _WeatherFarmStatusCard extends StatelessWidget {
           style: GoogleFonts.poppins(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: valueColor ?? const Color(0xFF1B4332),
+            color: valueColor ?? const Color(0xFF1E6B52),
           ),
         ),
       ],
@@ -716,94 +807,66 @@ class _AiAssistantCard extends StatelessWidget {
         );
       },
       child: Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.15),
-            blurRadius: 15,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.auto_awesome_rounded, color: Color(0xFF38BDF8), size: 20),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                "Ask Krishi AI",
-                style: GoogleFonts.poppins(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            "Instant answers about pest identification, treatments, and organic spray solutions.",
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              color: const Color(0xFFCBD5E1),
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildQueryChip(context, "How to identify FAW?"),
-              _buildQueryChip(context, "How to protect crops?"),
-              _buildQueryChip(context, "Why are leaves yellow?"),
-            ],
-          ),
-        ],
-      ),
-    ));
-  }
-
-  Widget _buildQueryChip(BuildContext context, String query) {
-    return ScaleOnTap(
-      onTap: () {
-        Navigator.push(
-          context,
-          _createPremiumRoute(
-            KrishiChatPage(initialQuery: query),
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
-        ),
-        child: Text(
-          query,
-          style: GoogleFonts.poppins(
-            color: const Color(0xFF38BDF8),
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
+          gradient: const LinearGradient(
+            colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF0F172A).withValues(alpha: 0.15),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
+              color: const Color(0xFF58D9A6).withValues(alpha: 0.12),
+              blurRadius: 24,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.auto_awesome_rounded, color: Color(0xFF58D9A6), size: 28),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Ask Krishi FAW AI",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Get instant answers about pests, treatments, and crop care.",
+                    style: GoogleFonts.poppins(
+                      fontSize: 12.5,
+                      color: const Color(0xFFCBD5E1),
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 20),
+            ),
+          ],
         ),
       ),
     );
@@ -830,7 +893,7 @@ class _AiAssistantChatPageState extends State<_AiAssistantChatPage> {
     super.initState();
     _messages.add({
       "sender": "ai",
-      "text": "Namaste! I am your AI Farmer Assistant. How can I help you support your maize and other crops today?"
+      "text": "Namaste! I am your FAW AI Farmer Assistant. How can I help you support your maize and other crops today?"
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -902,7 +965,7 @@ class _AiAssistantChatPageState extends State<_AiAssistantChatPage> {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "Krishi AI Assistant",
+          "Krishi FAW AI Assistant",
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
         ),
         backgroundColor: Colors.white,
@@ -1065,5 +1128,194 @@ class AboveNavFabLocation extends FloatingActionButtonLocation {
 
     final double fabY = scaffoldGeometry.scaffoldSize.height - scaffoldGeometry.floatingActionButtonSize.height - bottomOffset;
     return Offset(fabX, fabY);
+  }
+}
+
+class AnimatedScanner extends StatefulWidget {
+  const AnimatedScanner({super.key});
+
+  @override
+  State<AnimatedScanner> createState() => _AnimatedScannerState();
+}
+
+class _AnimatedScannerState extends State<AnimatedScanner> with TickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late AnimationController _rotationController;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 8),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    _rotationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 24),
+        Center(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Outer pulsing ring
+              ScaleTransition(
+                scale: _pulseAnimation,
+                child: Container(
+                  width: 140,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF58D9A6).withValues(alpha: 0.08),
+                    border: Border.all(
+                      color: const Color(0xFF58D9A6).withValues(alpha: 0.25),
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+              // Inner pulsing ring
+              ScaleTransition(
+                scale: _pulseAnimation,
+                child: Container(
+                  width: 115,
+                  height: 115,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF1E6B52).withValues(alpha: 0.05),
+                    border: Border.all(
+                      color: const Color(0xFF1E6B52).withValues(alpha: 0.15),
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+              // Rotating dots container
+              RotationTransition(
+                turns: _rotationController,
+                child: SizedBox(
+                  width: 155,
+                  height: 155,
+                  child: Stack(
+                    children: [
+                      // Dot 1
+                      Positioned(
+                        top: 0,
+                        left: 77 - 4,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF58D9A6),
+                          ),
+                        ),
+                      ),
+                      // Dot 2
+                      Positioned(
+                        bottom: 0,
+                        left: 77 - 4,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF1E6B52),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Center circle with leaf icon
+              Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF1E6B52).withValues(alpha: 0.1),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(
+                    color: const Color(0xFF1E6B52).withValues(alpha: 0.08),
+                    width: 1.5,
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.energy_savings_leaf_rounded,
+                    size: 44,
+                    color: Color(0xFF1E6B52),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // "AI Ready to Assist" Badge
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF58D9A6).withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(100),
+            border: Border.all(
+              color: const Color(0xFF58D9A6).withValues(alpha: 0.25),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF1E6B52),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "FAW AI ready to assist",
+                style: GoogleFonts.poppins(
+                  color: const Color(0xFF1E6B52),
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
   }
 }

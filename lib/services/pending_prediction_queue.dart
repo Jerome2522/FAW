@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -42,7 +43,7 @@ class PendingPredictionQueue {
           
           await file.delete();
           if (await imageFile.exists()) await imageFile.delete();
-          print("QUEUE CLEANUP: removed stale item $uuid");
+          debugPrint("QUEUE CLEANUP: removed stale item $uuid");
         }
       } catch (e) {
         // Corrupted file
@@ -70,17 +71,17 @@ class PendingPredictionQueue {
     final File metaFile = File(p.join(dir.path, '$uuid.json'));
     await metaFile.writeAsString(json.encode(metadata));
     
-    print("QUEUE SAVED: $uuid");
+    debugPrint("QUEUE SAVED: $uuid");
   }
 
   static Future<void> processPending() async {
     if (_isProcessing) {
-      print("QUEUE ACTIVE: Sync already in progress, skipping.");
+      debugPrint("QUEUE ACTIVE: Sync already in progress, skipping.");
       return;
     }
     
     _isProcessing = true;
-    print("QUEUE ACTIVE: Starting sync process.");
+    debugPrint("QUEUE ACTIVE: Starting sync process.");
 
     try {
       final dir = await _getQueueDir();
@@ -92,7 +93,7 @@ class PendingPredictionQueue {
           .where((f) => f.path.endsWith('.json'))
           .toList();
 
-      print("QUEUE PROCESSING: SIZE=${metaFiles.length}");
+      debugPrint("QUEUE PROCESSING: SIZE=${metaFiles.length}");
 
       for (var metaFile in metaFiles) {
         final String uuid = p.basenameWithoutExtension(metaFile.path);
@@ -108,23 +109,23 @@ class PendingPredictionQueue {
         int retryCount = metadata['retryCount'] ?? 0;
 
         if (retryCount >= 3) {
-          print("QUEUE DISCARDED: $uuid (Max retries)");
+          debugPrint("QUEUE DISCARDED: $uuid (Max retries)");
           await metaFile.delete();
           await imageFile.delete();
           continue;
         }
 
         try {
-          print("UPLOAD RETRY: $uuid (Attempt ${retryCount + 1})");
+          debugPrint("UPLOAD RETRY: $uuid (Attempt ${retryCount + 1})");
           await ApiService.predict(imageFile);
           
           // Success: Clean up
           await metaFile.delete();
           await imageFile.delete();
-          print("QUEUE SUCCESS: $uuid");
+          debugPrint("QUEUE SUCCESS: $uuid");
           
           // Wait before next upload to avoid overwhelming Render
-          print("QUEUE WAITING: 15s before next upload");
+          debugPrint("QUEUE WAITING: 15s before next upload");
           await Future.delayed(const Duration(seconds: 15));
         } catch (e) {
           final String errorStr = e.toString();
@@ -133,10 +134,10 @@ class PendingPredictionQueue {
                             errorStr.contains('504');
 
           if (isServerBusy) {
-            print("SERVER BUSY: delaying retry for $uuid");
+            debugPrint("SERVER BUSY: delaying retry for $uuid");
           }
 
-          print("QUEUE FAILED: $uuid - $e");
+          debugPrint("QUEUE FAILED: $uuid - $e");
           retryCount++;
           metadata['retryCount'] = retryCount;
           await metaFile.writeAsString(json.encode(metadata));
@@ -148,7 +149,7 @@ class PendingPredictionQueue {
       }
     } finally {
       _isProcessing = false;
-      print("QUEUE ACTIVE: Sync process completed.");
+      debugPrint("QUEUE ACTIVE: Sync process completed.");
     }
   }
 

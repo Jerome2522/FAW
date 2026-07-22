@@ -49,13 +49,13 @@ class _FloatingScanButtonState extends State<FloatingScanButton> with SingleTick
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: const LinearGradient(
-              colors: [Color(0xFF2D6A4F), Color(0xFF52B788)],
+              colors: [Color(0xFF1E6B52), Color(0xFF58D9A6)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF2D6A4F).withOpacity(0.4),
+                color: const Color(0xFF1E6B52).withValues(alpha: 0.35),
                 blurRadius: 15,
                 spreadRadius: 2,
                 offset: const Offset(0, 4),

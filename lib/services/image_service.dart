@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as p;
 
@@ -27,7 +28,7 @@ class ImageService {
       }
     } catch (e) {
       // In case of any error (e.g., unsupported format), return the original untouched file
-      print('Error compressing image: $e');
+      debugPrint('Error compressing image: $e');
     }
 
     return originalFile;
@@ -39,7 +40,7 @@ class ImageService {
         await file.delete();
       }
     } catch (e) {
-      print('Error cleaning up image: $e');
+      debugPrint('Error cleaning up image: $e');
     }
   }
 
@@ -69,7 +70,7 @@ class ImageService {
         return compressedFile.path;
       }
     } catch (e) {
-      print('Error generating thumbnail: $e');
+      debugPrint('Error generating thumbnail: $e');
     }
     return null;
   }

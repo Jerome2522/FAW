@@ -1,7 +1,7 @@
 name: fawproto
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.0
+version: 1.0.0+1
 
 environment:
   sdk: ^3.10.7
@@ -23,7 +23,7 @@ dependencies:
   intl: ^0.20.2
   path: ^1.9.1
   path_provider: ^2.1.5
-  permission_handler: ^11.3.1
+  permission_handler: ^12.0.0+1
   shared_preferences: ^2.5.5
   url_launcher: ^6.2.5
   uuid: ^4.5.3
@@ -35,11 +35,21 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.13.1
 
+# ---------------------------------------------------------------------------
+# Windows build fix: permission_handler_windows 0.2.1 uses cppwinrt
+# 2.0.210806.1 which pulls in <experimental/coroutine> — removed in VS 2026
+# (error STL1011). We override with a local coroutine-free stub that reports
+# every permission as GRANTED (Windows doesn't need runtime permissions).
+# ---------------------------------------------------------------------------
+dependency_overrides:
+  permission_handler_windows:
+    path: packages/permission_handler_windows
+
 flutter_native_splash:
-  color: "#E8EEE8"
-  image: lib/images/app_icon.png
-  color_dark: "#1E352F"
-  image_dark: lib/images/app_icon.png
+  # Plain background only — no icon flash before the FAW AI splash screen.
+  # Both light and dark use white so the transition is seamless.
+  color: "#FFFFFF"
+  color_dark: "#FFFFFF"
   android: true
   ios: true
   fullscreen: true
@@ -49,8 +59,10 @@ flutter_launcher_icons:
   ios: true
   image_path: "lib/images/app_icon.png"
   min_sdk_android: 21
-  adaptive_icon_background: "#2D6A4F"
-  adaptive_icon_foreground: "lib/images/app_icon.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "lib/images/app_icon_padded.png"
+  adaptive_icon_monochrome: "lib/images/app_icon_padded.png"
+
 
 flutter:
   uses-material-design: true

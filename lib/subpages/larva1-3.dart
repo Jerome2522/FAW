@@ -33,7 +33,7 @@ class Larva1To3Screen extends StatelessWidget {
                 border: Border.all(color: Colors.purple.shade100),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.purple.withOpacity(0.05),
+                    color: Colors.purple.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

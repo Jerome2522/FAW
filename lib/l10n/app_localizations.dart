@@ -785,7 +785,7 @@ abstract class AppLocalizations {
   /// No description provided for @captureLeafInsect.
   ///
   /// In en, this message translates to:
-  /// **'Capture a leaf or insect image for AI analysis'**
+  /// **'Capture a leaf or insect image for FAW AI analysis'**
   String get captureLeafInsect;
 
   /// No description provided for @openCamera.

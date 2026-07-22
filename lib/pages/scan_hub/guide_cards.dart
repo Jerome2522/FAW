@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fawproto/l10n/app_localizations.dart';
+
 
 import '../biology.dart';
 import '../management.dart';
@@ -37,17 +37,16 @@ class GuideCardsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Farmer Education Guide",
+          "Farmer Education",
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF1B4332),
+            color: const Color(0xFF1E6B52),
           ),
         ),
         const SizedBox(height: 12),
@@ -55,40 +54,32 @@ class GuideCardsSection extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2,
-          childAspectRatio: 1.3,
-          crossAxisSpacing: 14,
-          mainAxisSpacing: 14,
+          childAspectRatio: 2.8,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
           children: [
             _buildGuideCard(
               context,
-              l10n.cropCareGuide,
-              "🌽",
-              Colors.amber.shade50,
-              const Color(0xFF92400E),
+              "Crop Care Guide",
+              Icons.agriculture_rounded,
               const ManagementScreen(),
             ),
             _buildGuideCard(
               context,
-              l10n.pestPrevention,
-              "🐛",
-              Colors.red.shade50,
-              const Color(0xFF991B1B),
+              "Pest Prevention",
+              Icons.bug_report_rounded,
               const DamageSymptomsScreen(),
             ),
             _buildGuideCard(
               context,
-              l10n.healthyCropPractices,
-              "🌱",
-              Colors.green.shade50,
-              const Color(0xFF065F46),
+              "Healthy Practices",
+              Icons.favorite_rounded,
               const BiologyScreen(),
             ),
             _buildGuideCard(
               context,
-              l10n.howToCapturePhotos,
-              "📷",
-              Colors.blue.shade50,
-              const Color(0xFF1E40AF),
+              "Better Image Capture",
+              Icons.camera_alt_rounded,
               const IdentificationScreen(),
             ),
           ],
@@ -100,9 +91,7 @@ class GuideCardsSection extends StatelessWidget {
   Widget _buildGuideCard(
     BuildContext context,
     String title,
-    String emoji,
-    Color bg,
-    Color textColor,
+    IconData icon,
     Widget targetPage,
   ) {
     return Container(
@@ -111,12 +100,12 @@ class GuideCardsSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           )
         ],
-        border: Border.all(color: Colors.grey.shade100),
+        border: Border.all(color: const Color(0xFF1E6B52).withValues(alpha: 0.08)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -129,27 +118,23 @@ class GuideCardsSection extends StatelessWidget {
             );
           },
           child: Padding(
-            padding: const EdgeInsets.all(14.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: bg,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(emoji, style: const TextStyle(fontSize: 18)),
+                Icon(
+                  icon,
+                  color: const Color(0xFF1E6B52),
+                  size: 20,
                 ),
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: textColor,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                      color: const Color(0xFF1E293B),
+                    ),
                   ),
                 ),
               ],

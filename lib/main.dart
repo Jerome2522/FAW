@@ -75,6 +75,13 @@ void main() async {
     ),
   );
   
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+
   runApp(const MyApp());
 }
 
@@ -190,9 +197,155 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width >= 700;
+
+
+    final navItems = [
+      (Icons.home_rounded, AppLocalizations.of(context)!.home),
+      (Icons.camera_alt_rounded, 'Scan'),
+      (Icons.science_outlined, AppLocalizations.of(context)!.labs),
+      (Icons.mail_outline, AppLocalizations.of(context)!.contact),
+    ];
+
+    if (isWide) {
+      // ── Wide layout: side rail + content ──────────────────────────────────
+      return Scaffold(
+        backgroundColor: const Color(0xFFE8EEE8),
+        body: Stack(
+          children: [
+            // Background blobs
+            Positioned(
+              top: -40, right: -40,
+              child: Container(
+                height: 200, width: 200,
+                decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0x261B3E2E)),
+              ),
+            ),
+            Positioned(
+              top: 300, left: -40,
+              child: Container(
+                height: 160, width: 160,
+                decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0x2628A269)),
+              ),
+            ),
+            Row(
+              children: [
+                // Side navigation rail
+                ValueListenableBuilder<int>(
+                  valueListenable: _selectedIndex,
+                  builder: (context, idx, _) => SafeArea(
+                    child: Container(
+                      width: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 24),
+                          Image.asset('lib/images/icarlogo.png', height: 36, fit: BoxFit.contain),
+                          const SizedBox(height: 24),
+                          ...List.generate(navItems.length, (i) {
+                            final isSelected = idx == i;
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                              child: GestureDetector(
+                                onTap: () => _onItemTapped(i),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? const Color(0xFF1E6B52).withValues(alpha: 0.12)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        navItems[i].$1,
+                                        color: isSelected ? const Color(0xFF1E6B52) : Colors.grey[500],
+                                        size: 24,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        navItems[i].$2,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 10,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w400,
+                                          color: isSelected ? const Color(0xFF1E6B52) : Colors.grey[500],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // Main content area
+                Expanded(
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: _selectedIndex,
+                    builder: (context, idx, _) => FadeIndexedStack(
+                      index: idx,
+                      children: [
+                        LazyIndexedStackChild(isActivated: idx == 0, child: const HomeDashboard()),
+                        LazyIndexedStackChild(isActivated: idx == 1, child: const ScanHubPage()),
+                        LazyIndexedStackChild(isActivated: idx == 2, child: const LabsScreen()),
+                        LazyIndexedStackChild(isActivated: idx == 3, child: const ContactScreen()),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Offline banner
+            Positioned(
+              top: 0, left: 0, right: 0,
+              child: SafeArea(
+                bottom: false,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  height: _isOffline ? 32 : 0,
+                  color: const Color(0xFFDC2626),
+                  width: double.infinity,
+                  child: _isOffline
+                      ? const Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.wifi_off_rounded, color: Colors.white, size: 14),
+                              SizedBox(width: 8),
+                              Text(
+                                "Offline Mode — Scan predictions will be queued",
+                                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ── Narrow layout: original bottom nav ───────────────────────────────────
     return Scaffold(
       backgroundColor: const Color(0xFFE8EEE8),
-      extendBody: true, // Allows content to flow behind navigation bar for glass effect
+      extendBody: true,
       body: Stack(
         children: [
           // Background blobs for glassmorphism effect visibility
@@ -204,7 +357,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
               width: 200,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0x261B3E2E), // Rich dark green hex alpha
+                color: Color(0x261B3E2E),
               ),
             ),
           ),
@@ -216,7 +369,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
               width: 160,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0x2628A269), // Emerald-tinted green hex alpha
+                color: Color(0x2628A269),
               ),
             ),
           ),
@@ -228,7 +381,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
               width: 180,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0x7F55875C), // Agricultural green-grey hex alpha
+                color: Color(0x7F55875C),
               ),
             ),
           ),
@@ -270,7 +423,7 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 height: _isOffline ? 32 : 0,
-                color: const Color(0xFFDC2626), // Solid deep red
+                color: const Color(0xFFDC2626),
                 width: double.infinity,
                 child: _isOffline
                     ? const Center(
@@ -312,15 +465,15 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                     filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xA6FFFFFF), // Hardcoded white glass alpha
+                        color: const Color(0xA6FFFFFF),
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
-                          color: const Color(0xCCFFFFFF), // Border alpha
+                          color: const Color(0xCCFFFFFF),
                           width: 1.5,
                         ),
                         boxShadow: const [
                           BoxShadow(
-                            color: Color(0x0A000000), // Shadow alpha
+                            color: Color(0x0A000000),
                             blurRadius: 20,
                             offset: Offset(0, 8),
                           ),
@@ -328,15 +481,15 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       child: GNav(
-                        rippleColor: const Color(0x33FFFFFF), // Ripple alpha
-                        hoverColor: const Color(0x19FFFFFF), // Hover alpha
+                        rippleColor: const Color(0x33FFFFFF),
+                        hoverColor: const Color(0x19FFFFFF),
                         gap: 8,
                         activeColor: const Color(0xFF1B4332),
                         iconSize: 24,
                         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                         duration: const Duration(milliseconds: 300),
-                        tabBackgroundColor: const Color(0x2652B788), // Tab background alpha
-                        color: const Color(0x992D6A4F), // Icon color alpha
+                        tabBackgroundColor: const Color(0x2652B788),
+                        color: const Color(0x992D6A4F),
                         tabs: [
                           GButton(icon: Icons.home_rounded, text: AppLocalizations.of(context)!.home),
                           GButton(icon: Icons.camera_alt_rounded, text: 'Scan'),
@@ -405,10 +558,10 @@ class GridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final splashColor = Color.fromARGB(26, color.red, color.green, color.blue);
-    final highlightColor = Color.fromARGB(13, color.red, color.green, color.blue);
-    final circleColor = Color.fromARGB(26, color.red, color.green, color.blue);
-    final barColor = Color.fromARGB(77, color.red, color.green, color.blue);
+    final splashColor = Color.fromARGB(26, (color.r * 255).round(), (color.g * 255).round(), (color.b * 255).round());
+    final highlightColor = Color.fromARGB(13, (color.r * 255).round(), (color.g * 255).round(), (color.b * 255).round());
+    final circleColor = Color.fromARGB(26, (color.r * 255).round(), (color.g * 255).round(), (color.b * 255).round());
+    final barColor = Color.fromARGB(77, (color.r * 255).round(), (color.g * 255).round(), (color.b * 255).round());
 
     return GlassBox(
       borderRadius: BorderRadius.circular(24),
@@ -664,9 +817,12 @@ class _HomeDashboardState extends State<HomeDashboard> with SingleTickerProvider
 
     return SafeArea(
       bottom: false,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 100),
-        child: Column(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 100),
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 12),
@@ -949,7 +1105,9 @@ class _HomeDashboardState extends State<HomeDashboard> with SingleTickerProvider
             const SizedBox(height: 20),
           ],
         ),
+        ),
       ),
+    ),
     );
   }
 }

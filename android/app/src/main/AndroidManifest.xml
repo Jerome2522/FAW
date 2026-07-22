@@ -1,9 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.icar.fawproto">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!-- Legacy read storage permission for Android 12 (API 32) and lower. image_picker handles photo permissions on Android 13+ -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
     <application
-        android:label="fawproto"
+        android:label="BIPM FOR FAW"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

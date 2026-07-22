@@ -5,9 +5,9 @@ import 'dart:io';
 
 import 'package:fawproto/widgets/scale_on_tap.dart';
 import 'package:fawproto/services/scan_history_service.dart';
-import 'package:fawproto/models/predict_result.dart';
+import 'package:fawproto/models/predict_response.dart';
 import 'package:fawproto/l10n/app_localizations.dart';
-import 'package:fawproto/features/prediction/prediction_page.dart';
+import 'package:fawproto/screens/result_screen.dart';
 import 'package:fawproto/pages/scan_hub/empty_state.dart';
 
 /// Fade + Slide Route Transition Builder
@@ -46,32 +46,32 @@ class RecentScansSection extends StatelessWidget {
     required this.onLoadHistory,
   });
 
-  Map<String, dynamic> _getStatusInfo(PredictResult result) {
-    final label = result.prediction?.label.toLowerCase() ?? "";
-    if (label.contains("healthy")) {
+  Map<String, dynamic> _getStatusInfo(PredictResponseModel result) {
+    final status = result.status.toLowerCase();
+    if (status.contains("healthy")) {
       return {
         "text": "Healthy",
         "emoji": "🟢",
         "color": const Color(0xFF1E5631),
         "bg": const Color(0xFFD1FAE5),
       };
-    } else if (label.contains("faw")) {
+    } else if (status.contains("fall_armyworm_detected")) {
       return {
         "text": "FAW detected",
         "emoji": "🔴",
         "color": const Color(0xFFB91C1C),
         "bg": const Color(0xFFFEE2E2),
       };
-    } else if (label.contains("damage")) {
+    } else if (status.contains("maize_streak_disease")) {
       return {
-        "text": "Crop Damage",
+        "text": "Streak Disease",
         "emoji": "🟡",
         "color": const Color(0xFFD97706),
         "bg": const Color(0xFFFEF3C7),
       };
     } else {
       return {
-        "text": result.prediction?.displayName ?? "Other insect",
+        "text": result.treatment.title,
         "emoji": "🔵",
         "color": const Color(0xFF2563EB),
         "bg": const Color(0xFFDBEAFE),
@@ -85,7 +85,7 @@ class RecentScansSection extends StatelessWidget {
       return "Continue monitoring crops";
     } else if (lower.contains("faw")) {
       return "Immediate inspection recommended";
-    } else if (lower.contains("damage")) {
+    } else if (lower.contains("streak")) {
       return "Assess spread and treat";
     } else {
       return "Compare with insect guides";
@@ -116,27 +116,27 @@ class RecentScansSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x03000000), // Pre-calculated constant hex alpha (0.01 black)
-            blurRadius: 15,
-            offset: Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           )
         ],
-        border: Border.all(color: Colors.green.shade50),
+        border: Border.all(color: const Color(0xFF1E6B52).withValues(alpha: 0.08)),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(14),
-            decoration: const BoxDecoration(
-              color: Color(0x142D6A4F), // Pre-calculated constant hex alpha (0.08 0xFF2D6A4F)
+            decoration: BoxDecoration(
+              color: const Color(0xFF58D9A6).withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
-              color: const Color(0xFF2D6A4F),
+              color: const Color(0xFF1E6B52),
               size: 32,
             ),
           ),
@@ -146,7 +146,7 @@ class RecentScansSection extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.bold,
               fontSize: 15,
-              color: const Color(0xFF1B4332),
+              color: const Color(0xFF1E6B52),
             ),
           ),
           const SizedBox(height: 6),
@@ -179,7 +179,7 @@ class RecentScansSection extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF1B4332),
+                color: const Color(0xFF1E6B52),
               ),
             ),
           ],
@@ -192,7 +192,7 @@ class RecentScansSection extends StatelessWidget {
                   onStartScan: onStartScan,
                 )
               : SizedBox(
-                  height: 236,
+                  height: 200,
                   child: RepaintBoundary(
                     child: ListView.separated(
                       key: const PageStorageKey('scan_hub_recent_scans_list'),
@@ -203,7 +203,7 @@ class RecentScansSection extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final item = history[index];
                         final statusInfo = _getStatusInfo(item.result);
-                        final confidenceVal = (item.result.prediction?.confidence ?? 0.0) * 100;
+                        final confidenceVal = item.result.maxConfidence * 100;
                         final Color statusColor = statusInfo["color"];
 
                         final String statusLabel = statusInfo["text"];
@@ -251,7 +251,7 @@ class RecentScansSection extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF1B4332),
+                color: const Color(0xFF1E6B52),
               ),
             ),
           ],
@@ -346,7 +346,7 @@ class _RecentScanCardState extends State<RecentScanCard> with AutomaticKeepAlive
           await Navigator.push(
             context,
             _createPremiumRoute(
-              PredictionPage(
+              ResultScreen(
                 image: XFile(widget.item.imagePath),
                 initialResult: widget.item.result,
               ),
@@ -358,23 +358,22 @@ class _RecentScanCardState extends State<RecentScanCard> with AutomaticKeepAlive
           width: 154,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: const [
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
               BoxShadow(
-                color: Color(0x05000000), // Pre-calculated constant hex alpha (0.02 black)
-                blurRadius: 10,
-                offset: Offset(0, 4),
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               )
             ],
-            border: Border.all(color: const Color(0xFFF3F4F6)),
+            border: Border.all(color: const Color(0xFF1E6B52).withValues(alpha: 0.08)),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  flex: 5,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -395,7 +394,7 @@ class _RecentScanCardState extends State<RecentScanCard> with AutomaticKeepAlive
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xA6000000), // Pre-calculated constant hex alpha (0.65 black)
+                            color: Colors.black.withValues(alpha: 0.75),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
@@ -411,68 +410,50 @@ class _RecentScanCardState extends State<RecentScanCard> with AutomaticKeepAlive
                     ],
                   ),
                 ),
-                Expanded(
-                  flex: 6,
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(widget.statusIcon, color: widget.statusColor, size: 14),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                widget.statusInfo["text"],
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 11,
-                                  color: widget.statusColor,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Expanded(
-                          child: Text(
-                            widget.treatmentSummary,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.poppins(
-                              fontSize: 10,
-                              color: const Color(0xFF4B5563),
-                              fontWeight: FontWeight.w500,
-                              height: 1.3,
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: widget.statusLabel.toLowerCase().contains("healthy")
+                                  ? const Color(0xFF1E6B52)
+                                  : const Color(0xFFDC2626),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        const Divider(height: 1, thickness: 0.5),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            const Icon(Icons.access_time_rounded, color: Color(0xFF9CA3AF), size: 12),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                widget.timeAgo,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 9.5,
-                                  color: const Color(0xFF6B7280),
-                                  fontWeight: FontWeight.w500,
-                                ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              widget.statusLabel.toLowerCase().contains("healthy")
+                                  ? "Healthy"
+                                  : "FAW Detected",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11.5,
+                                color: const Color(0xFF1E293B),
                               ),
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.timeAgo,
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          color: Colors.grey[500],
+                          fontWeight: FontWeight.w500,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -512,7 +493,7 @@ class _RecentImageThumbnailState extends State<RecentImageThumbnail> with Automa
         await Navigator.push(
           context,
           _createPremiumRoute(
-            PredictionPage(
+            ResultScreen(
               image: XFile(widget.item.imagePath),
               initialResult: widget.item.result,
             ),

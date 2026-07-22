@@ -37,21 +37,21 @@ class _PremiumHeroSectionState extends State<PremiumHeroSection> with SingleTick
         height: 220,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF1B4332), Color(0xFF2D6A4F), Color(0xFF40916C)],
+            colors: [Color(0xFF1E6B52), Color(0xFF58D9A6)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1B4332).withOpacity(0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: const Color(0xFF1E6B52).withValues(alpha: 0.15),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(20),
           child: Stack(
             children: [
               // Slow moving floating particles
@@ -68,7 +68,7 @@ class _PremiumHeroSectionState extends State<PremiumHeroSection> with SingleTick
                           height: 12,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.12),
+                            color: Colors.white.withValues(alpha: 0.12),
                           ),
                         ),
                       ),
@@ -80,7 +80,7 @@ class _PremiumHeroSectionState extends State<PremiumHeroSection> with SingleTick
                           height: 24,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.08),
+                            color: Colors.white.withValues(alpha: 0.08),
                           ),
                         ),
                       ),
@@ -92,7 +92,7 @@ class _PremiumHeroSectionState extends State<PremiumHeroSection> with SingleTick
                           height: 8,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.15),
+                            color: Colors.white.withValues(alpha: 0.15),
                           ),
                         ),
                       ),
@@ -134,21 +134,21 @@ class _PremiumHeroSectionState extends State<PremiumHeroSection> with SingleTick
                       height: 52,
                       width: 52,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
                       child: Center(
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
-                            Icon(Icons.local_florist_rounded, size: 28, color: Colors.green[200]),
+                            const Icon(Icons.local_florist_rounded, size: 28, color: Color(0xFF58D9A6)),
                             Positioned(
                               bottom: 0,
                               right: 0,
                               child: Container(
                                 padding: const EdgeInsets.all(3),
                                 decoration: const BoxDecoration(
-                                  color: Color(0xFF52B788),
+                                  color: Color(0xFF58D9A6),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(Icons.qr_code_scanner_rounded, size: 10, color: Colors.white),
@@ -174,7 +174,7 @@ class _PremiumHeroSectionState extends State<PremiumHeroSection> with SingleTick
                       widget.subtitle,
                       style: GoogleFonts.poppins(
                         fontSize: 13,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontWeight: FontWeight.w400,
                       ),
                     ),

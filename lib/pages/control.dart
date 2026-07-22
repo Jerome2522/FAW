@@ -89,7 +89,7 @@ class ControlScreen extends StatelessWidget {
         border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.01),
+            color: Colors.black.withValues(alpha: 0.01),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),
@@ -114,7 +114,7 @@ class ControlScreen extends StatelessWidget {
                   height: 54,
                   width: 54,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(icon, color: color, size: 26),
@@ -138,7 +138,7 @@ class ControlScreen extends StatelessWidget {
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF2D6A4F).withOpacity(0.8),
+                          color: const Color(0xFF2D6A4F).withValues(alpha: 0.8),
                         ),
                       ),
                     ],

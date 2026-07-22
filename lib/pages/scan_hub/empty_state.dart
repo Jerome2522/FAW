@@ -53,15 +53,15 @@ class _EmptyHistoryStateCardState extends State<EmptyHistoryStateCard> with Sing
         padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.015),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             )
           ],
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: const Color(0xFF1E6B52).withValues(alpha: 0.08)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -81,7 +81,7 @@ class _EmptyHistoryStateCardState extends State<EmptyHistoryStateCard> with Sing
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2D6A4F).withOpacity(0.08),
+                  color: const Color(0xFF58D9A6).withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: const Center(
@@ -98,7 +98,7 @@ class _EmptyHistoryStateCardState extends State<EmptyHistoryStateCard> with Sing
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: const Color(0xFF1B4332),
+                color: const Color(0xFF1E6B52),
               ),
             ),
             const SizedBox(height: 8),
@@ -118,15 +118,15 @@ class _EmptyHistoryStateCardState extends State<EmptyHistoryStateCard> with Sing
                 padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF2D6A4F), Color(0xFF52B788)],
+                    colors: [Color(0xFF1E6B52), Color(0xFF58D9A6)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF2D6A4F).withOpacity(0.3),
-                      blurRadius: 12,
+                      color: const Color(0xFF1E6B52).withValues(alpha: 0.25),
+                      blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
                   ],

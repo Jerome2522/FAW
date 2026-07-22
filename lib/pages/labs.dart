@@ -198,19 +198,19 @@ class _LabsScreenState extends State<LabsScreen> with AutomaticKeepAliveClientMi
         decoration: BoxDecoration(
           color: isSelected 
               ? const Color(0xFF2D6A4F) 
-              : Colors.white.withOpacity(0.65),
+              : Colors.white.withValues(alpha: 0.65),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected 
                 ? const Color(0xFF2D6A4F) 
-                : Colors.white.withOpacity(0.8),
+                : Colors.white.withValues(alpha: 0.8),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected 
-                  ? const Color(0xFF2D6A4F).withOpacity(0.2) 
-                  : Colors.black.withOpacity(0.02),
+                  ? const Color(0xFF2D6A4F).withValues(alpha: 0.2) 
+                  : Colors.black.withValues(alpha: 0.02),
               blurRadius: 10,
               offset: const Offset(0, 4),
             )
@@ -300,12 +300,12 @@ class _LabsScreenState extends State<LabsScreen> with AutomaticKeepAliveClientMi
                               child: Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.65),
+                                  color: Colors.white.withValues(alpha: 0.65),
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.5),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.8), width: 1.5),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.02),
+                                      color: Colors.black.withValues(alpha: 0.02),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     )
@@ -351,7 +351,7 @@ class _LabsScreenState extends State<LabsScreen> with AutomaticKeepAliveClientMi
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF2D6A4F).withOpacity(0.02),
+                                      color: const Color(0xFF2D6A4F).withValues(alpha: 0.02),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),

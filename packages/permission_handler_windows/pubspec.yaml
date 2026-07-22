@@ -1,0 +1,27 @@
+name: permission_handler_windows
+description: >
+  Stub Windows implementation of permission_handler.
+  On Windows, all permissions are pre-granted — no Android-style
+  runtime requests are needed. This stub avoids the deprecated
+  <experimental/coroutine> header that breaks VS 2026.
+version: 0.2.1
+
+flutter:
+  plugin:
+    implements: permission_handler
+    platforms:
+      windows:
+        pluginClass: PermissionHandlerWindowsPlugin
+
+dependencies:
+  flutter:
+    sdk: flutter
+  permission_handler_platform_interface: ">=4.1.0 <5.0.0"
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"

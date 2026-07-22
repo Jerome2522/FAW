@@ -397,7 +397,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get captureLeafInsect =>
-      'Capture a leaf or insect image for AI analysis';
+      'Capture a leaf or insect image for FAW AI analysis';
 
   @override
   String get openCamera => 'Open Camera';

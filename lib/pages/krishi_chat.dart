@@ -188,7 +188,7 @@ class _KrishiChatPageState extends State<KrishiChatPage> {
             "sender": "ai",
             "text": _isHindi 
                 ? "कृषि एआई अभी व्यस्त है। कृपया थोड़ी देर बाद पुनः प्रयास करें।"
-                : "Krishi AI is currently busy. Please try again later."
+                : "Krishi FAW AI is currently busy. Please try again later."
           });
         });
       } else {
@@ -198,7 +198,7 @@ class _KrishiChatPageState extends State<KrishiChatPage> {
             "sender": "ai",
             "text": _isHindi
                 ? "कृषि एआई अस्थायी रूप से अनुपलब्ध है। कृपया कुछ क्षणों में पुनः प्रयास करें।"
-                : "Krishi AI is temporarily unavailable. Please try again in a few moments."
+                : "Krishi FAW AI is temporarily unavailable. Please try again in a few moments."
           });
         });
       }
@@ -236,7 +236,7 @@ class _KrishiChatPageState extends State<KrishiChatPage> {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
-          "Krishi AI Assistant",
+          "Krishi FAW AI Assistant",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -358,7 +358,7 @@ class _KrishiChatPageState extends State<KrishiChatPage> {
           border: isAi ? Border.all(color: const Color(0xFFE2E8F0), width: 1.2) : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 5,
               offset: const Offset(0, 3),
             )
@@ -400,7 +400,7 @@ class _KrishiChatPageState extends State<KrishiChatPage> {
             ),
             const SizedBox(width: 10),
             Text(
-              _isHindi ? "कृषि एआई सोच रहा है..." : "Krishi AI is thinking...",
+              _isHindi ? "कृषि एआई सोच रहा है..." : "Krishi FAW AI is thinking...",
               style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600),
             ),
           ],

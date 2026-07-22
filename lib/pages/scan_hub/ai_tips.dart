@@ -46,22 +46,22 @@ class _AiTipsSectionState extends State<AiTipsSection> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.01),
-            blurRadius: 15,
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           )
         ],
-        border: Border.all(color: Colors.green.shade50),
+        border: Border.all(color: const Color(0xFF1E6B52).withValues(alpha: 0.08)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.amber.shade50,
+              color: const Color(0xFF58D9A6).withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.tips_and_updates_rounded, color: Colors.amber.shade800, size: 20),
+            child: const Icon(Icons.tips_and_updates_rounded, color: Color(0xFF1E6B52), size: 20),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -69,11 +69,11 @@ class _AiTipsSectionState extends State<AiTipsSection> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "AI Tip of the Day",
+                  "FAW AI Tip of the Day",
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
-                    color: Colors.amber.shade800,
+                    color: const Color(0xFF1E6B52),
                   ),
                 ),
                 const SizedBox(height: 2),

@@ -47,7 +47,7 @@ This app is one component of a three-repository ecosystem:
 |---|---|
 | **FAW ML** | Research, training, and ONNX export pipeline — produces the three AI models |
 | **faw-backend** | Production FastAPI inference server — loads the models and serves predictions |
-| **fawproto** *(this repo)* | Flutter mobile app — the farmer-facing interface that captures images and displays results |
+| **BIPM FOR FAW** *(this repo)* | Flutter mobile app — the farmer-facing interface that captures images and displays results |
 
 ### How the System Works
 

@@ -1,6 +1,6 @@
 {
-    "name": "fawproto",
-    "short_name": "fawproto",
+    "name": "BIPM FOR FAW",
+    "short_name": "BIPM FOR FAW",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
