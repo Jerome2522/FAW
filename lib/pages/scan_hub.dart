@@ -10,6 +10,7 @@ import '../features/camera/camera_service.dart';
 import '../services/scan_history_service.dart';
 import '../services/image_service.dart';
 import '../widgets/scale_on_tap.dart';
+import '../widgets/navigation/safe_navigator.dart';
 import '../screens/result_screen.dart';
 import '../screens/history_screen.dart';
 
@@ -79,7 +80,7 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
 
   Future<void> _handleImage(XFile image) async {
     if (!mounted) return;
-    await Navigator.push(
+    await SafeNavigator.push(
       context,
       _createPremiumRoute(ResultScreen(image: image)),
     );
@@ -94,19 +95,18 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
         bool? allowed = await showDialog<bool>(
           context: context,
           builder: (BuildContext context) {
+            final l10n = AppLocalizations.of(context)!;
             return AlertDialog(
-              title: const Text("Camera Access Required"),
-              content: const Text(
-                "We need camera access to scan your crops for Fall Armyworm damage. Your photos are only used for analysis and are not stored without your consent."
-              ),
+              title: Text(l10n.cameraAccessRequired),
+              content: Text(l10n.cameraPermissionDesc),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text("Not Now"),
+                  child: Text(l10n.notNow),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text("Allow"),
+                  child: Text(l10n.allow),
                 ),
               ],
             );
@@ -135,15 +135,17 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
   }
 
   void _showScanOptionsBottomSheet() {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (BuildContext context) {
         return SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -158,7 +160,7 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
                   ),
                 ),
                 Text(
-                  "Scan Your Crop",
+                  l10n.scanYourCrop,
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -167,11 +169,12 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Choose an action to check for pests",
+                  l10n.captureLeafInsect,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     color: Colors.grey[500],
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -184,7 +187,7 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
                         },
                         child: _buildSheetActionCard(
                           icon: Icons.camera_alt_rounded,
-                          label: "Open Camera",
+                          label: l10n.openCamera,
                           gradient: const LinearGradient(
                             colors: [Color(0xFF2D6A4F), Color(0xFF52B788)],
                           ),
@@ -200,7 +203,7 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
                         },
                         child: _buildSheetActionCard(
                           icon: Icons.photo_library_rounded,
-                          label: "Choose Gallery",
+                          label: l10n.chooseFromGallery,
                           gradient: const LinearGradient(
                             colors: [Color(0xFF1B4332), Color(0xFF40916C)],
                           ),
@@ -318,7 +321,7 @@ class _ScanHubPageState extends State<ScanHubPage> with AutomaticKeepAliveClient
           IconButton(
             icon: const Icon(Icons.history_rounded, color: Color(0xFF1E6B52)),
             onPressed: () {
-              Navigator.push(
+              SafeNavigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const HistoryScreen()),
               );
@@ -801,7 +804,7 @@ class _AiAssistantCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScaleOnTap(
       onTap: () {
-        Navigator.push(
+        SafeNavigator.push(
           context,
           _createPremiumRoute(const KrishiChatPage()),
         );

@@ -1,112 +1,295 @@
-<!DOCTYPE html><html><head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - BIPM FOR FAW</title>
+    <meta name="description" content="Privacy Policy for BIPM FOR FAW - Mobile agricultural AI application for Fall Armyworm detection.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0F172A;
+            --card-bg: #1E293B;
+            --accent-green: #10B981;
+            --accent-light: #34D399;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --border-color: #334155;
+        }
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            padding: 24px 16px;
+            display: flex;
+            justify-content: center;
+        }
 
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px 32px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+        header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+        }
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="BIPM FOR FAW">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+        .badge {
+            display: inline-block;
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--accent-light);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png">
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.025em;
+            margin-bottom: 8px;
+        }
 
-  <title>BIPM FOR FAW</title>
-  <link rel="manifest" href="manifest.json">
-  
-  
-  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
-  <style id="splash-screen-style">
-    html {
-      height: 100%
-    }
+        .dates {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
 
-    body {
-      margin: 0;
-      min-height: 100%;
-      background-color: #FFFFFF;
-          background-size: 100% 100%;
-    }
+        h2 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--accent-light);
+            margin-top: 36px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-    .center {
-      margin: 0;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      -ms-transform: translate(-50%, -50%);
-      transform: translate(-50%, -50%);
-    }
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
 
-    .contain {
-      display:block;
-      width:100%; height:100%;
-      object-fit: contain;
-    }
+        p, li {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
 
-    .stretch {
-      display:block;
-      width:100%; height:100%;
-    }
+        ul, ol {
+            padding-left: 24px;
+            margin-bottom: 16px;
+        }
 
-    .cover {
-      display:block;
-      width:100%; height:100%;
-      object-fit: cover;
-    }
+        li {
+            margin-bottom: 8px;
+        }
 
-    .bottom {
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      -ms-transform: translate(-50%, 0);
-      transform: translate(-50%, 0);
-    }
+        strong {
+            color: var(--text-primary);
+        }
 
-    .bottomLeft {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-    }
+        code {
+            background-color: rgba(0, 0, 0, 0.4);
+            color: var(--accent-light);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
 
-    .bottomRight {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-    }
+        blockquote {
+            background-color: rgba(16, 185, 129, 0.08);
+            border-left: 4px solid var(--accent-green);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 24px 0;
+        }
 
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #FFFFFF;
-          }
-    }
-  </style>
-  <script id="splash-screen-script">
-    function removeSplashFromWeb() {
-      document.getElementById("splash")?.remove();
-      document.getElementById("splash-branding")?.remove();
-      document.body.style.background = "transparent";
-    }
-  </script>
+        blockquote p {
+            color: var(--text-primary);
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+
+        a {
+            color: var(--accent-light);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 12px 8px;
+            }
+            .container {
+                padding: 24px 16px;
+            }
+            h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  
-  <script src="flutter_bootstrap.js" async=""></script>
+    <div class="container">
+        <header>
+            <span class="badge">Official Legal Policy</span>
+            <h1>Privacy Policy for BIPM FOR FAW</h1>
+            <div class="dates">
+                <strong>Last Updated:</strong> July 22, 2026 &nbsp;|&nbsp; <strong>Effective Date:</strong> July 22, 2026
+            </div>
+        </header>
 
+        <section>
+            <h2>1. Introduction</h2>
+            <p>Welcome to <strong>BIPM FOR FAW</strong> ("we," "our," or "us"). We are committed to protecting the privacy of our users ("you" or "farmer").</p>
+            <p>BIPM FOR FAW is a mobile application developed using the Flutter framework designed to assist farmers, agricultural extension workers, and researchers in identifying <strong>Fall Armyworm (<em>Spodoptera frugiperda</em>)</strong> infestations and assessing crop health.</p>
+            <p>This Privacy Policy explains how we handle data when you use the BIPM FOR FAW mobile application. By installing and using BIPM FOR FAW, you consent to the practices described in this Privacy Policy.</p>
+        </section>
 
-</body></html>
+        <section>
+            <h2>2. Information We Collect</h2>
+            <h3>A. Personal Data</h3>
+            <p><strong>No Account Required:</strong> We do <strong>not</strong> collect names, email addresses, phone numbers, passwords, postal addresses, or payment details. You can use the application without registering or providing any personally identifiable information (PII).</p>
+
+            <h3>B. User-Provided Content (Crop Images)</h3>
+            <p><strong>Photos for AI Analysis:</strong> When you photograph a crop leaf or pest using the app's camera feature or select an image from your device gallery, that image is temporarily uploaded to our secure inference server to generate an AI-powered diagnostic prediction.</p>
+
+            <h3>C. Automatically Generated Technical Data</h3>
+            <p><strong>Device & API Diagnostics:</strong> To process inference requests and maintain server security, our backend HTTP server receives basic network protocol metadata (such as IP addresses and server log timestamps). We do not correlate IP addresses with individual user profiles, nor do we track your identity across other applications or websites.</p>
+        </section>
+
+        <section>
+            <h2>3. How We Use Information</h2>
+            <p>We use the images you upload and technical request data strictly for the following purposes:</p>
+            <ol>
+                <li><strong>AI Crop Diagnosis:</strong> Transmitting uploaded crop images to our inference model pipeline to determine crop health status, detect Fall Armyworm infestation, and return relevant diagnostic confidence scores.</li>
+                <li><strong>Agricultural Guidance Generation:</strong> Providing structured treatment and control guidance steps based on the AI diagnostic result.</li>
+                <li><strong>App Stability & Security:</strong> Monitoring server request logs to protect our infrastructure against abusive requests, cyber threats, and rate-limit violations.</li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>4. Permissions Requested</h2>
+            <p>BIPM FOR FAW requests specific runtime permissions on your mobile device to deliver its core functionality:</p>
+            <ul>
+                <li><strong>Camera Permission (<code>android.permission.CAMERA</code>):</strong> Required to allow you to take real-time photos of crop leaves, damage symptoms, or insects directly within the application for AI evaluation.</li>
+                <li><strong>Storage / Photo Access (<code>android.permission.READ_EXTERNAL_STORAGE</code> / Photo Picker):</strong> Required to allow you to select previously taken crop photos from your device library for AI evaluation.</li>
+                <li><strong>Internet Access (<code>android.permission.INTERNET</code>):</strong> Required to send compressed image payloads over encrypted HTTPS to our cloud-hosted backend inference service (<code>https://faw-backend.onrender.com</code>) and retrieve diagnostic results.</li>
+            </ul>
+            <blockquote>
+                <p><strong>Note:</strong> You can grant or revoke Camera and Storage permissions at any time through your device's Android System Settings. If you deny Camera or Photo access, you will be unable to capture or select images for AI analysis.</p>
+            </blockquote>
+        </section>
+
+        <section>
+            <h2>5. Data Transmission & HTTPS Security</h2>
+            <p><strong>Encrypted Transport:</strong> All communication between the BIPM FOR FAW Flutter application and our backend server is conducted using <strong>Transport Layer Security (TLS/HTTPS)</strong>. This ensures that your uploaded crop images and the returned diagnostic predictions are encrypted in transit.</p>
+            <p><strong>Cloud Infrastructure:</strong> Our backend application and AI models are hosted on <strong>Render</strong> (Render Services, Inc.). Render manages physical server security and infrastructure controls.</p>
+        </section>
+
+        <section>
+            <h2>6. Local Storage & Data Retention</h2>
+            <p><strong>On-Device Scan History:</strong> The application saves recent scan records (including local thumbnail image paths, diagnosis labels, confidence scores, and timestamps) <strong>locally on your physical device</strong> using key-value storage (<code>SharedPreferences</code>).</p>
+            <p><strong>Control of Local Data:</strong> Scan history remains entirely on your device. You can clear this data at any time by clearing the application's data or uninstalling the app via your device settings.</p>
+            <p><strong>Image Retention on Backend:</strong> Images uploaded for AI inference are processed transiently in memory to perform classification and treatment matching. We do not sell your images, build user profiling databases, or share uploaded photos with third-party data brokers.</p>
+        </section>
+
+        <section>
+            <h2>7. Advertising & Data Sale Policy</h2>
+            <p><strong>No Advertisements:</strong> BIPM FOR FAW contains zero third-party advertising, banner ads, or promotional SDKs.</p>
+            <p><strong>No Data Selling:</strong> We <strong>never</strong> sell, rent, monetize, or trade your uploaded images, scan history, or device data to any third parties or data brokers.</p>
+            <p><strong>No User Tracking:</strong> We do not use cross-site tracking technologies, advertising IDs (GAID), or behavioral profiling tools.</p>
+        </section>
+
+        <section>
+            <h2>8. Third-Party Services & SDKs</h2>
+            <p>The app uses minimal open-source software libraries and cloud platform infrastructure necessary to support Flutter compilation and backend execution:</p>
+            <ul>
+                <li><strong>Flutter Framework & Plugins:</strong> Standard Flutter infrastructure packages developed by the Flutter community (e.g., <code>image_picker</code>, <code>flutter_image_compress</code>, <code>http</code>, <code>connectivity_plus</code>).</li>
+                <li><strong>Firebase Core Infrastructure:</strong> The application initializes standard Firebase core SDKs (<code>firebase_core</code>) for client application lifecycle management. No telemetry profiles or commercial analytics pipelines are linked to your identity.</li>
+                <li><strong>Cloud Hosting:</strong> Backend API endpoints hosted on Render (<code>render.com</code>).</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>9. Children's Privacy (COPPA & GDPR Compliance)</h2>
+            <p>BIPM FOR FAW is an agricultural utility tool designed for general audiences, farmers, and agricultural workers. We do not knowingly target or collect personal information from children under the age of 13 (or under 16 in certain jurisdictions).</p>
+            <p>Because the app requires no user registration or personal identification inputs, no personal details belonging to children are requested or stored. If a parent or guardian becomes aware that a child has provided us with personal information, please contact us so we can take immediate corrective measures.</p>
+        </section>
+
+        <section>
+            <h2>10. Agricultural Disclaimer & Advisory Notice</h2>
+            <blockquote>
+                <p><strong>IMPORTANT DISCLAIMER:</strong> The diagnostic outputs, confidence scores, and treatment plans provided by BIPM FOR FAW are generated by artificial intelligence algorithms and are provided for <strong>informational and educational purposes only</strong>. While every effort is made to train robust diagnostic models, AI predictions can occasionally be inaccurate. Farmers and users should verify results with local agricultural extension officers, certified agronomists, or official plant health authorities before applying control measures.</p>
+            </blockquote>
+        </section>
+
+        <section>
+            <h2>11. User Data Rights & Data Deletion</h2>
+            <p>Because BIPM FOR FAW does <strong>not</strong> create user accounts or store identifiable personal profiles on external cloud databases:</p>
+            <ul>
+                <li><strong>Local Data Removal:</strong> All stored scan history and cached diagnostic records exist exclusively on your device. You can exercise your right to delete this data instantly by choosing <strong>Clear Storage / Clear Data</strong> under <code>Settings &gt; Apps &gt; BIPM FOR FAW</code> on your Android device, or by uninstalling the application.</li>
+                <li><strong>Data Requests:</strong> If you have questions regarding data processing or server infrastructure, you may submit an inquiry to our contact email below.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>12. Changes to This Privacy Policy</h2>
+            <p>We may update our Privacy Policy from time to time to reflect changes in our legal obligations, backend service upgrades, or Google Play policy updates. Any updates will be posted directly within this document with a revised "Last Updated" date.</p>
+        </section>
+
+        <section>
+            <h2>13. Contact Us</h2>
+            <p>If you have any questions, concerns, or requests regarding this Privacy Policy or our privacy practices, please contact us at:</p>
+            <ul>
+                <li><strong>Organization / Publisher:</strong> ICAR - National Bureau of Agricultural Insect Resources (NBAIR)</li>
+                <li><strong>Contact Email:</strong> <a href="mailto:director.nbair@icar.gov.in">director.nbair@icar.gov.in</a></li>
+                <li><strong>Website:</strong> <a href="https://www.nbair.res.in/" target="_blank" rel="noopener">https://www.nbair.res.in/</a></li>
+                <li><strong>Address:</strong> P.B. No. 2491, H.A. Farm Post, Bellary Road, Hebbal, Bengaluru - 560024, Karnataka, India</li>
+            </ul>
+        </section>
+
+        <footer>
+            &copy; 2026 ICAR - National Bureau of Agricultural Insect Resources. All Rights Reserved.
+        </footer>
+    </div>
+</body>
+</html>

@@ -128,5 +128,18 @@
     "pestPrevention": "Pest Prevention",
     "healthyCropPractices": "Healthy Crop Practices",
     "howToCapturePhotos": "How to Capture Better Photos",
-    "scanHub": "Scan Hub"
+    "scanHub": "Scan Hub",
+    "scan": "Scan",
+    "cameraAccessRequired": "Camera Access Required",
+    "cameraPermissionDesc": "We need camera access to scan your crops for Fall Armyworm damage. Your photos are only used for analysis and are not stored without your consent.",
+    "notNow": "Not Now",
+    "allow": "Allow",
+    "offlineBannerText": "Offline Mode — Scan predictions will be queued",
+    "history": "History",
+    "clearHistory": "Clear History",
+    "confirmClearHistory": "Are you sure you want to clear all scan history?",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "typeMessage": "Type a message...",
+    "send": "Send"
 }

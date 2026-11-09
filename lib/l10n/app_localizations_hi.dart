@@ -442,4 +442,46 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get scanHub => 'स्कैन हब';
+
+  @override
+  String get scan => 'स्कैन';
+
+  @override
+  String get cameraAccessRequired => 'कैमरा एक्सेस आवश्यक है';
+
+  @override
+  String get cameraPermissionDesc =>
+      'फॉल आर्मीवर्म क्षति के लिए आपकी फसलों को स्कैन करने के लिए हमें कैमरा एक्सेस की आवश्यकता है। आपकी तस्वीरें केवल विश्लेषण के लिए उपयोग की जाती हैं।';
+
+  @override
+  String get notNow => 'अभी नहीं';
+
+  @override
+  String get allow => 'अनुमति दें';
+
+  @override
+  String get offlineBannerText =>
+      'ऑफ़लाइन मोड — स्कैन भविष्यवाणियां कतार में रहेंगी';
+
+  @override
+  String get history => 'इतिहास';
+
+  @override
+  String get clearHistory => 'इतिहास साफ़ करें';
+
+  @override
+  String get confirmClearHistory =>
+      'क्या आप वाकई सारा स्कैन इतिहास साफ़ करना चाहते हैं?';
+
+  @override
+  String get cancel => 'रद्द करें';
+
+  @override
+  String get delete => 'हटाएं';
+
+  @override
+  String get typeMessage => 'एक संदेश लिखें...';
+
+  @override
+  String get send => 'भेजें';
 }

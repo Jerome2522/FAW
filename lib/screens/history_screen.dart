@@ -2,9 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import '../l10n/app_localizations.dart';
 import '../services/scan_history_service.dart';
 import 'result_screen.dart';
 import '../widgets/scale_on_tap.dart';
+import '../widgets/navigation/safe_navigator.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -84,59 +86,63 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFE8EEE8),
-      appBar: AppBar(
-        title: Text(
-          "Scan History",
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1B4332),
-          ),
-        ),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1B4332)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          if (_history.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_sweep_rounded, color: Color(0xFFB91C1C)),
-              tooltip: "Clear History",
-              onPressed: () async {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text("Clear History"),
-                    content: const Text("Are you sure you want to delete all cached predictions locally?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: const Text("Cancel"),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        child: const Text("Clear", style: TextStyle(color: Color(0xFFB91C1C))),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirm == true) {
-                  await ScanHistoryService.clearHistory();
-                  _loadHistory();
-                }
-              },
+    final l10n = AppLocalizations.of(context)!;
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFE8EEE8),
+        appBar: AppBar(
+          title: Text(
+            l10n.recentScans,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF1B4332),
             ),
-        ],
+          ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1B4332)),
+            onPressed: () => SafeNavigator.safePop(context),
+          ),
+          actions: [
+            if (_history.isNotEmpty)
+              IconButton(
+                icon: const Icon(Icons.delete_sweep_rounded, color: Color(0xFFB91C1C)),
+                tooltip: l10n.clearHistory,
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text(l10n.clearHistory),
+                      content: Text(l10n.confirmClearHistory),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(l10n.cancel),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(l10n.delete, style: const TextStyle(color: Color(0xFFB91C1C))),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    await ScanHistoryService.clearHistory();
+                    _loadHistory();
+                  }
+                },
+              ),
+          ],
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator(color: Color(0xFF2D6A4F)))
+            : _history.isEmpty
+                ? _buildEmptyState()
+                : _buildHistoryList(),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF2D6A4F)))
-          : _history.isEmpty
-              ? _buildEmptyState()
-              : _buildHistoryList(),
     );
   }
 
@@ -200,7 +206,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         
         return ScaleOnTap(
           onTap: () {
-            Navigator.push(
+            SafeNavigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ResultScreen(

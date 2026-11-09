@@ -22,6 +22,7 @@ import 'services/pending_prediction_queue.dart';
 import 'widgets/navigation/lazy_indexed_stack_child.dart';
 import 'widgets/navigation/fade_indexed_stack.dart';
 import 'widgets/navigation/bottom_nav.dart';
+import 'widgets/navigation/safe_navigator.dart';
 
 class FadePageRoute<T> extends PageRouteBuilder<T> {
   final Widget page;
@@ -198,18 +199,19 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width >= 700;
-
+    final l10n = AppLocalizations.of(context)!;
 
     final navItems = [
-      (Icons.home_rounded, AppLocalizations.of(context)!.home),
-      (Icons.camera_alt_rounded, 'Scan'),
-      (Icons.science_outlined, AppLocalizations.of(context)!.labs),
-      (Icons.mail_outline, AppLocalizations.of(context)!.contact),
+      (Icons.home_rounded, l10n.home),
+      (Icons.camera_alt_rounded, l10n.scan),
+      (Icons.science_outlined, l10n.labs),
+      (Icons.mail_outline, l10n.contact),
     ];
 
+    Widget bodyContent;
     if (isWide) {
       // ── Wide layout: side rail + content ──────────────────────────────────
-      return Scaffold(
+      bodyContent = Scaffold(
         backgroundColor: const Color(0xFFE8EEE8),
         body: Stack(
           children: [
@@ -340,10 +342,9 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
           ],
         ),
       );
-    }
-
-    // ── Narrow layout: original bottom nav ───────────────────────────────────
-    return Scaffold(
+    } else {
+      // ── Narrow layout: original bottom nav ───────────────────────────────────
+      bodyContent = Scaffold(
       backgroundColor: const Color(0xFFE8EEE8),
       extendBody: true,
       body: Stack(
@@ -491,10 +492,10 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                         tabBackgroundColor: const Color(0x2652B788),
                         color: const Color(0x992D6A4F),
                         tabs: [
-                          GButton(icon: Icons.home_rounded, text: AppLocalizations.of(context)!.home),
-                          GButton(icon: Icons.camera_alt_rounded, text: 'Scan'),
-                          GButton(icon: Icons.science_outlined, text: AppLocalizations.of(context)!.labs),
-                          GButton(icon: Icons.mail_outline, text: AppLocalizations.of(context)!.contact),
+                          GButton(icon: Icons.home_rounded, text: l10n.home),
+                          GButton(icon: Icons.camera_alt_rounded, text: l10n.scan),
+                          GButton(icon: Icons.science_outlined, text: l10n.labs),
+                          GButton(icon: Icons.mail_outline, text: l10n.contact),
                         ],
                         selectedIndex: idx,
                         onTabChange: _onItemTapped,
@@ -507,6 +508,21 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
           },
         ),
       ),
+    );
+    }
+
+    return PopScope(
+      canPop: _selectedIndex.value == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_selectedIndex.value != 0) {
+          setState(() {
+            _lastIndex = _selectedIndex.value;
+            _selectedIndex.value = 0;
+          });
+        }
+      },
+      child: bodyContent,
     );
   }
 }
@@ -801,9 +817,8 @@ class _HomeDashboardState extends State<HomeDashboard> with SingleTickerProvider
 
   void _navigateWithFeedback(BuildContext context, Widget page) async {
     HapticFeedback.lightImpact();
-    await Future.delayed(const Duration(milliseconds: 100)); // Prevent double tap
     if (!context.mounted) return;
-    Navigator.push(
+    SafeNavigator.push(
       context,
       FadePageRoute(page: page),
     );

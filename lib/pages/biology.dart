@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../subpages/lifecycle.dart';
 import '../subpages/larva1-3.dart';
 import '../subpages/larva4-6.dart';
+import '../widgets/navigation/safe_navigator.dart';
 
 class BiologyScreen extends StatelessWidget {
   const BiologyScreen({super.key});
@@ -34,7 +35,7 @@ class BiologyScreen extends StatelessWidget {
             _buildBiologyOption(
               context,
               AppLocalizations.of(context)!.lifeCycle,
-              () => Navigator.push(
+              () => SafeNavigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const LifeCycleScreen()),
               ),
@@ -42,7 +43,7 @@ class BiologyScreen extends StatelessWidget {
             _buildBiologyOption(
               context,
               AppLocalizations.of(context)!.larvalStage1To3,
-              () => Navigator.push(
+              () => SafeNavigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const Larva1To3Screen()),
               ),
@@ -50,7 +51,7 @@ class BiologyScreen extends StatelessWidget {
             _buildBiologyOption(
               context,
               AppLocalizations.of(context)!.larvalStage4To6,
-              () => Navigator.push(
+              () => SafeNavigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const Larva4To6Screen()),
               ),
@@ -58,7 +59,7 @@ class BiologyScreen extends StatelessWidget {
             _buildBiologyOption(
               context,
               AppLocalizations.of(context)!.egg,
-              () => Navigator.push(
+              () => SafeNavigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => BiologyDetailScreen(
@@ -68,7 +69,7 @@ class BiologyScreen extends StatelessWidget {
             _buildBiologyOption(
               context,
               AppLocalizations.of(context)!.larva,
-              () => Navigator.push(
+              () => SafeNavigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => BiologyDetailScreen(
@@ -78,7 +79,7 @@ class BiologyScreen extends StatelessWidget {
             _buildBiologyOption(
               context,
               AppLocalizations.of(context)!.pupa,
-              () => Navigator.push(
+              () => SafeNavigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => BiologyDetailScreen(
@@ -88,7 +89,7 @@ class BiologyScreen extends StatelessWidget {
             _buildBiologyOption(
               context,
               AppLocalizations.of(context)!.adult,
-              () => Navigator.push(
+              () => SafeNavigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => BiologyDetailScreen(

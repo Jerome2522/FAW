@@ -232,8 +232,11 @@ class _KrishiChatPageState extends State<KrishiChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
           "Krishi FAW AI Assistant",
@@ -289,8 +292,9 @@ class _KrishiChatPageState extends State<KrishiChatPage> {
           _buildInputPanel(),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildActiveScanCard() {
     final crop = widget.scanContext!["crop_type"] ?? "maize";

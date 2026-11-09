@@ -6,6 +6,8 @@
 build/
 
 # Android
+.gradle_home/
+android/.kotlin/
 android/.gradle/
 android/local.properties
 android/key.properties

@@ -443,4 +443,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanHub => 'Scan Hub';
+
+  @override
+  String get scan => 'Scan';
+
+  @override
+  String get cameraAccessRequired => 'Camera Access Required';
+
+  @override
+  String get cameraPermissionDesc =>
+      'We need camera access to scan your crops for Fall Armyworm damage. Your photos are only used for analysis and are not stored without your consent.';
+
+  @override
+  String get notNow => 'Not Now';
+
+  @override
+  String get allow => 'Allow';
+
+  @override
+  String get offlineBannerText =>
+      'Offline Mode — Scan predictions will be queued';
+
+  @override
+  String get history => 'History';
+
+  @override
+  String get clearHistory => 'Clear History';
+
+  @override
+  String get confirmClearHistory =>
+      'Are you sure you want to clear all scan history?';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get typeMessage => 'Type a message...';
+
+  @override
+  String get send => 'Send';
 }

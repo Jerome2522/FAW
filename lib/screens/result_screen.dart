@@ -12,6 +12,7 @@ import '../services/image_service.dart';
 import '../widgets/error_handler.dart';
 import '../pages/krishi_chat.dart';
 import '../widgets/scale_on_tap.dart';
+import '../widgets/navigation/safe_navigator.dart';
 
 class ResultScreen extends StatefulWidget {
   final XFile image;
@@ -121,41 +122,43 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF3F7F4),
-      appBar: AppBar(
-        title: Text(
-          "Diagnostic Result",
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1E6B52),
-          ),
-        ),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E6B52), size: 16),
-              onPressed: () => Navigator.pop(context),
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF3F7F4),
+        appBar: AppBar(
+          title: Text(
+            "Diagnostic Result",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF1E6B52),
             ),
           ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          centerTitle: true,
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E6B52), size: 16),
+                onPressed: () => SafeNavigator.safePop(context),
+              ),
+            ),
+          ),
         ),
-      ),
       body: Stack(
         children: [
           // Decorative background blobs
@@ -222,7 +225,8 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildLoadingState() {
@@ -885,7 +889,7 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
 
     return ScaleOnTap(
       onTap: () {
-        Navigator.push(
+        SafeNavigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => KrishiChatPage(

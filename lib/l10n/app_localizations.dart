@@ -877,6 +877,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scan Hub'**
   String get scanHub;
+
+  /// No description provided for @scan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get scan;
+
+  /// No description provided for @cameraAccessRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera Access Required'**
+  String get cameraAccessRequired;
+
+  /// No description provided for @cameraPermissionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'We need camera access to scan your crops for Fall Armyworm damage. Your photos are only used for analysis and are not stored without your consent.'**
+  String get cameraPermissionDesc;
+
+  /// No description provided for @notNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Now'**
+  String get notNow;
+
+  /// No description provided for @allow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get allow;
+
+  /// No description provided for @offlineBannerText.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Mode — Scan predictions will be queued'**
+  String get offlineBannerText;
+
+  /// No description provided for @history.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get history;
+
+  /// No description provided for @clearHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear History'**
+  String get clearHistory;
+
+  /// No description provided for @confirmClearHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to clear all scan history?'**
+  String get confirmClearHistory;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @typeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message...'**
+  String get typeMessage;
+
+  /// No description provided for @send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
 }
 
 class _AppLocalizationsDelegate
