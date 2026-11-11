@@ -7,8 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../models/predict_response.dart';
 import '../services/api_service.dart';
+import '../services/offline_ml_service.dart';
 import '../services/scan_history_service.dart';
-import '../services/image_service.dart';
 import '../widgets/error_handler.dart';
 import '../pages/krishi_chat.dart';
 import '../widgets/scale_on_tap.dart';
@@ -92,11 +92,9 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
     });
 
     try {
-      final File preparedFile = await ImageService.prepareImage(widget.image);
-      final result = await ApiService.predict(preparedFile);
-      
-      // Cleanup prepared temp file
-      await ImageService.cleanup(preparedFile);
+      final result = await OfflineMlService.instance.predict(
+        File(widget.image.path),
+      );
 
       // Persist directly to scan history cache
       if (result.status != 'retake_image') {
@@ -110,11 +108,11 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
         });
       }
     } catch (e) {
-      debugPrint("Error calling /predict: $e");
+      debugPrint("Error running offline inference: $e");
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorType = AppExceptionType.server;
+          _errorType = AppExceptionType.imageProcessing;
         });
       }
     }

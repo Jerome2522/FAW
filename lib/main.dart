@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -49,23 +48,17 @@ void main() async {
   PaintingBinding.instance.imageCache.maximumSize = 80; // Cache maximum 80 images
   PaintingBinding.instance.imageCache.maximumSizeBytes = 25 * 1024 * 1024; // Cap cache memory at 25 MB
   
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
-  // Initialize Offline Queue
-  await PendingPredictionQueue.initialize();
-  
-  // Production Render wake-up ping
   try {
-    final healthUri = Uri.parse("https://faw-backend.onrender.com/health");
-    await http.get(healthUri).timeout(const Duration(seconds: 10));
-    await Future.delayed(const Duration(seconds: 2));
-  } catch (_) {
-    // Ignore server wakeup timeout or failure
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint("Firebase init skipped/offline: $e");
   }
 
-  PendingPredictionQueue.processPending(); // Start background sync if any
+  // Initialize legacy queue cleanup (non-blocking)
+  await PendingPredictionQueue.initialize();
+  PendingPredictionQueue.processPending();
   
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -160,18 +153,12 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
   final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
   int _lastIndex = 0;
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
-  bool _isOffline = false;
 
   @override
   void initState() {
     super.initState();
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
       final offline = results.isEmpty || results.first == ConnectivityResult.none;
-      if (offline != _isOffline) {
-        setState(() {
-          _isOffline = offline;
-        });
-      }
       if (!offline) {
         PendingPredictionQueue.processPending();
       }
@@ -311,34 +298,6 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                 ),
               ],
             ),
-            // Offline banner
-            Positioned(
-              top: 0, left: 0, right: 0,
-              child: SafeArea(
-                bottom: false,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  height: _isOffline ? 32 : 0,
-                  color: const Color(0xFFDC2626),
-                  width: double.infinity,
-                  child: _isOffline
-                      ? const Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.wifi_off_rounded, color: Colors.white, size: 14),
-                              SizedBox(width: 8),
-                              Text(
-                                "Offline Mode — Scan predictions will be queued",
-                                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ),
-            ),
           ],
         ),
       );
@@ -412,41 +371,6 @@ class _FallArmywormScreenState extends State<FallArmywormScreen> {
                 ],
               );
             },
-          ),
-
-          // Top Offline Connectivity Banner
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              bottom: false,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                height: _isOffline ? 32 : 0,
-                color: const Color(0xFFDC2626),
-                width: double.infinity,
-                child: _isOffline
-                    ? const Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.wifi_off_rounded, color: Colors.white, size: 14),
-                            SizedBox(width: 8),
-                            Text(
-                              "Offline Mode — Scan predictions will be queued",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            ),
           ),
         ],
       ),

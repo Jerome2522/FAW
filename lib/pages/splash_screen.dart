@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
+import '../services/offline_ml_service.dart';
 import '../services/scan_history_service.dart';
 import '../main.dart';
 
@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       await Future.wait([
         _preloadImages(),
         _warmLocalStorage(),
-        _pingBackend(),
+        _warmUpOfflineModels(),
       ]);
 
       _loadingStatus.value = "Welcome to FAW AI";
@@ -99,15 +99,14 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     await ScanHistoryService.getHistory();
   }
 
-  Future<void> _pingBackend() async {
+  Future<void> _warmUpOfflineModels() async {
     if (!mounted) return;
-    _loadingStatus.value = "Connecting to cloud backend...";
+    _loadingStatus.value = "Loading offline AI models...";
     _loadingProgress.value = 0.6;
     try {
-      final healthUri = Uri.parse("https://faw-backend.onrender.com/health");
-      await http.get(healthUri).timeout(const Duration(seconds: 8));
-    } catch (_) {
-      // Fail silently in case of network issues, preserving offline usability
+      await OfflineMlService.instance.initialize();
+    } catch (e) {
+      debugPrint("Model warmup error: $e");
     }
   }
 

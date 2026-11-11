@@ -101,11 +101,17 @@ class _KrishiChatPageState extends State<KrishiChatPage> {
     if (norm.contains("explain scan") || norm.contains("explain my scan") || norm.contains("स्कैन") || norm.contains("scan result")) {
       if (widget.scanContext != null) {
         final pred = widget.scanContext!["prediction"] ?? "damaged";
-        final isHealthy = pred.toLowerCase().contains("healthy") || pred.toLowerCase().contains("normal");
+        final lower = pred.toLowerCase();
+        final isHealthy = lower.contains("healthy") || lower.contains("normal");
+        final isStreak = lower.contains("streak");
         if (isHealthy) {
           return _isHindi
               ? "साप्ताहिक जांच के आधार पर आपकी पत्ती स्वस्थ है और किसी फॉल आर्मीवॉर्म (FAW) संक्रमण का संकेत नहीं है। नियमित निगरानी जारी रखें।"
               : "Based on the leaf scan analysis, the crop leaf is healthy. No signs of Fall Armyworm damage were detected. Continue regular crop inspections.";
+        } else if (isStreak) {
+          return _isHindi
+              ? "निदान विश्लेषण के अनुसार, पत्ती पर मक्का धारीदार रोग (Maize Streak Disease) के लक्षण पाए गए हैं। प्रभावित पौधों को हटाकर नष्ट करें और लीफहॉपर कीटों को नियंत्रित करें।"
+              : "Based on the leaf scan analysis, Maize Streak Disease symptoms have been detected. Remove severely infected plants, control leafhopper vectors, and consider resistant maize varieties for future cycles.";
         } else {
           return _isHindi
               ? "निदान विश्लेषण के अनुसार, पत्ती पर फॉल आर्मीवॉर्म (सैनिक कीट) के नुकसान के लक्षण पाए गए हैं। संक्रमण को रोकने के लिए तुरंत नीम के तेल आधारित जैविक उपचार लागू करें।"
@@ -209,8 +215,8 @@ class _KrishiChatPageState extends State<KrishiChatPage> {
         _messages.add({
           "sender": "ai",
           "text": _isHindi
-              ? "कनेक्शन एरर। कृपया अपना इंटरनेट जांचें और पुनः प्रयास करें।"
-              : "Connection error. Please check your internet connection and try again."
+              ? "आप अभी ऑफलाइन हैं। आप 'लक्षण', 'उपचार', 'रोकथाम', या 'फॉल आर्मीवॉर्म क्या है' जैसे विषयों के बारे में ऑफलाइन पूछ सकते हैं।"
+              : "You are currently offline. You can still ask offline about 'Symptoms', 'Treatment Advice', 'Prevention Tips', or 'What is Fall Armyworm'."
         });
       });
     }
